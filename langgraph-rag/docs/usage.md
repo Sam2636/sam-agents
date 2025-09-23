@@ -15,7 +15,7 @@ python -m src.rag_agent.main
 ```markdown
 # Usage Guide
 
-## Environment Setup
+## Environment Setupc
 
 Create a `.env` file from `.env.example` and fill in your API keys:
 
