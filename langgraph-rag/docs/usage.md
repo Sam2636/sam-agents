@@ -13,7 +13,7 @@ python -m src.rag_agent.main
 ### 2️⃣ `docs/usage.md` — Usage Guide
 
 ```markdown
-# Usage Guidee
+# Usage Guide
 
 ## Environment Setup
 
