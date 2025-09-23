@@ -3,7 +3,7 @@ name: Deploy MkDocs to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main   # Deploy only when main is updated
 
 permissions:
   contents: write
@@ -15,26 +15,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # 3️⃣ Install MkDocs and Material theme
       - name: Install dependencies
         run: |
           pip install mkdocs mkdocs-material
 
+      # 4️⃣ Build the documentation
       - name: Build documentation
         run: mkdocs build --strict
 
+      # 5️⃣ Disable Jekyll (important!)
       - name: Disable Jekyll
         run: touch site/.nojekyll
 
+      # 6️⃣ Deploy to gh-pages branch
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+          publish_branch: gh-pages
