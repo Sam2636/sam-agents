@@ -1,0 +1,20 @@
+site_name: LangGraph RAG
+site_url: https://sam-agents.github.io/langgraph-rag/
+site_description: "RAG Agent Documentation using LangGraph"
+site_author: "Sam Dhanaseelan"
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Usage: usage.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
