@@ -18,14 +18,12 @@ theme:
     - content.tabs.link         # Tabbed content linking
     - content.tooltips          # Tooltips for references
   palette:
-    # Light mode
     - scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
-    # Dark mode
     - scheme: slate
       primary: deep purple
       accent: lime
@@ -46,9 +44,9 @@ nav:
 # ✅ Plugins
 plugins:
   - search
-  - mkdocs-material
-  - autorefs         # Cross-reference sections easily
-  - mkdocstrings     # Auto-generate docs from Python code
+  # Optional: enable only if installed
+  # - autorefs
+  # - mkdocstrings
 
 # ✅ Markdown Extensions
 markdown_extensions:
@@ -65,9 +63,8 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.emoji   # ✅ simple form, works without materialx
+  - pymdownx.emoji
   - attr_list
-
 
 # ✅ Build output directory
 site_dir: site
