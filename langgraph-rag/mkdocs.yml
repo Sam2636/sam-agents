@@ -1,5 +1,5 @@
 site_name: LangGraph RAG
-site_url: https://sam-agents.github.io/langgraph-rag/
+site_url: https://sam2636.github.io/sam-agents/langgraph-rag/
 site_description: "RAG Agent Documentation using LangGraph"
 site_author: "Sam Dhanaseelan"
 
@@ -18,3 +18,9 @@ markdown_extensions:
   - codehilite
   - toc:
       permalink: true
+
+# ✅ Ensure MkDocs generates into ./site
+site_dir: site
+
+# ✅ Make paths work under GitHub Pages subfolder (/sam-agents/langgraph-rag/)
+use_directory_urls: true
