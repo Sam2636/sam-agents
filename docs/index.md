@@ -25,3 +25,5 @@ git clone https://github.com/sam-agents/langgraph-rag.git
 cd langgraph-rag
 
 pip install -r requirements.txt
+
+https://mermaid.live/ --> toget the graph diagram
