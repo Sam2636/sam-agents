@@ -18,25 +18,25 @@
 4. **Difference between Python 2 and Python 3?**
    Python 3 uses `print()` as a function, supports Unicode by default, and division returns a float. Python 2 uses `print` as a statement and integer division truncates results.
 
-| Feature        | Python 2                   | Python 3                   |
-| -------------- | -------------------------- | -------------------------- |
-| String type    | `str` = bytes (ASCII only) | `str` = Unicode by default |
-| Unicode string | `u"hello"`                 | `"hello"` (always Unicode) |
-| Byte string    | `"hello"` (by default)     | `b"hello"`                 |
-| Emoji support  | Hard to handle             | Works out-of-the-box       |
+    | Feature        | Python 2                   | Python 3                   |
+    | -------------- | -------------------------- | -------------------------- |
+    | String type    | `str` = bytes (ASCII only) | `str` = Unicode by default |
+    | Unicode string | `u"hello"`                 | `"hello"` (always Unicode) |
+    | Byte string    | `"hello"` (by default)     | `b"hello"`                 |
+    | Emoji support  | Hard to handle             | Works out-of-the-box       |
 
-| Operation | Python 2 Output | Python 3 Output |
-| --------- | --------------- | --------------- |
-| `5 / 2`   | `2` (int)       | `2.5` (float)   |
-| `5 / 2.0` | `2.5` (float)   | `2.5` (float)   |
-| `5 // 2`  | `2` (floor)     | `2` (floor)     |
+    | Operation | Python 2 Output | Python 3 Output |
+    | --------- | --------------- | --------------- |
+    | `5 / 2`   | `2` (int)       | `2.5` (float)   |
+    | `5 / 2.0` | `2.5` (float)   | `2.5` (float)   |
+    | `5 // 2`  | `2` (floor)     | `2` (floor)     |
 
-| Expression | Python 2 Result | Python 3 Result    |
-| ---------- | --------------- | ------------------ |
-| `7 / 3`    | `2` (truncated) | `2.333...` (float) |
-| `7 / 4`    | `1` (truncated) | `1.75` (float)     |
-| `7 // 3`   | `2`             | `2`                |
-| `7 // 4`   | `1`             | `1`                |
+    | Expression | Python 2 Result | Python 3 Result    |
+    | ---------- | --------------- | ------------------ |
+    | `7 / 3`    | `2` (truncated) | `2.333...` (float) |
+    | `7 / 4`    | `1` (truncated) | `1.75` (float)     |
+    | `7 // 3`   | `2`             | `2`                |
+    | `7 // 4`   | `1`             | `1`                |
 
 
 5. **What are Python’s data types?**
