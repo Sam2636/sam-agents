@@ -17,7 +17,8 @@
 
 4. **Difference between Python 2 and Python 3?**
    Python 3 uses `print()` as a function, supports Unicode by default, and division returns a float. Python 2 uses `print` as a statement and integer division truncates results.
-   | Feature        | Python 2                   | Python 3                   |
+
+| Feature        | Python 2                   | Python 3                   |
 | -------------- | -------------------------- | -------------------------- |
 | String type    | `str` = bytes (ASCII only) | `str` = Unicode by default |
 | Unicode string | `u"hello"`                 | `"hello"` (always Unicode) |
