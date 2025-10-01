@@ -646,15 +646,40 @@
 </li>
 <li>
 <p><strong>Difference between Python 2 and Python 3?</strong>
-   Python 3 uses <code>print()</code> as a function, supports Unicode by default, and division returns a float. Python 2 uses <code>print</code> as a statement and integer division truncates results.
-   | Feature        | Python 2                   | Python 3                   |
-| -------------- | -------------------------- | -------------------------- |
-| String type    | <code>str</code> = bytes (ASCII only) | <code>str</code> = Unicode by default |
-| Unicode string | <code>u"hello"</code>                 | <code>"hello"</code> (always Unicode) |
-| Byte string    | <code>"hello"</code> (by default)     | <code>b"hello"</code>                 |
-| Emoji support  | Hard to handle             | Works out-of-the-box       |</p>
+   Python 3 uses <code>print()</code> as a function, supports Unicode by default, and division returns a float. Python 2 uses <code>print</code> as a statement and integer division truncates results.</p>
 </li>
 </ol>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Python 2</th>
+<th>Python 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String type</td>
+<td><code>str</code> = bytes (ASCII only)</td>
+<td><code>str</code> = Unicode by default</td>
+</tr>
+<tr>
+<td>Unicode string</td>
+<td><code>u"hello"</code></td>
+<td><code>"hello"</code> (always Unicode)</td>
+</tr>
+<tr>
+<td>Byte string</td>
+<td><code>"hello"</code> (by default)</td>
+<td><code>b"hello"</code></td>
+</tr>
+<tr>
+<td>Emoji support</td>
+<td>Hard to handle</td>
+<td>Works out-of-the-box</td>
+</tr>
+</tbody>
+</table>
 <table>
 <thead>
 <tr>
