@@ -1,22 +1,19 @@
-site_name: LangGraph RAG
+site_name: SamraG
 site_url: https://sam2636.github.io/sam-agents/langgraph-rag/
 site_description: "RAG Agent Documentation using LangGraph"
 site_author: "Sam Dhanaseelan"
 
-# ✅ Theme configuration
 theme:
   name: material
   language: en
   features:
-    - navigation.instant        # Instant navigation without reload
-    - navigation.tabs           # Top-level sections as tabs
-    - navigation.sections       # Collapsible sections
-    - navigation.expand         # Expand current section by default
-    - search.suggest            # Search suggestions
-    - search.highlight          # Highlight results
-    - content.code.copy         # Copy button for code snippets
-    - content.tabs.link         # Tabbed content linking
-    - content.tooltips          # Tooltips for references
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
   palette:
     - scheme: default
       primary: indigo
@@ -36,20 +33,20 @@ theme:
   icon:
     logo: material/book-open-page-variant
 
-# ✅ Navigation
 nav:
   - Home: index.md
   - Usage: usage.md
   - MultiGent: multigent.md
+  - Studying:
+      - DSA:
+          - Python Basics: Python-basic.md
+          - Dsa-Overview: DSA.md
+          - Patterns: DSA_pattern.md
+          - python-interview: python-interview.md
 
-# ✅ Plugins
 plugins:
   - search
-  # Optional: enable only if installed
-  # - autorefs
-  # - mkdocstrings
 
-# ✅ Markdown Extensions
 markdown_extensions:
   - admonition
   - codehilite:
@@ -67,8 +64,5 @@ markdown_extensions:
   - pymdownx.emoji
   - attr_list
 
-# ✅ Build output directory
 site_dir: site
-
-# ✅ Use directory-style URLs (/page/ instead of /page.html)
 use_directory_urls: true
