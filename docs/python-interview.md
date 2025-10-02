@@ -85,6 +85,21 @@
 18. **Difference between `@staticmethod` and `@classmethod`?**
     `@staticmethod` does not access class or instance data, while `@classmethod` takes the class itself as the first parameter. Both decorate methods differently.
 
+    | Feature              | `@staticmethod`          | `@classmethod`                          |
+    | -------------------- | ------------------------ | --------------------------------------- |
+    | First argument       | None                     | `cls` (the class itself)                |
+    | Access instance data | ❌ No                     | ❌ No                                    |
+    | Access class data    | ❌ No                     | ✅ Yes                                   |
+    | Usage                | Utility/helper functions | Work with class-level data/constructors |
+
+
+    | Feature         | Inheritance                                    | Polymorphism                                               | Encapsulation                       |
+    | --------------- | ---------------------------------------------- | ---------------------------------------------------------- | ----------------------------------- |
+    | **Definition**  | Derive properties & methods from another class | Same method call behaves differently for different objects | Hides internal details of an object |
+    | **Purpose**     | Code reuse, hierarchy                          | Flexibility, dynamic behavior                              | Data protection, controlled access  |
+    | **Example**     | `class Dog(Animal)`                            | `dog.speak()`, `cat.speak()`                               | Private variables `__balance`       |
+    | **Key Concept** | "is-a" relationship                            | Method overriding / operator overloading                   | Data hiding / getter & setter       |
+
 19. **What is inheritance?**
     Inheritance allows a class to derive properties and methods from another class. It promotes code reuse and hierarchy.
 
@@ -93,6 +108,13 @@
 
 21. **What is encapsulation?**
     Encapsulation hides internal object details using private variables. Access is provided via getter/setter methods.
+
+    | Access Type            | Prefix | Accessible From           | Notes                    |
+    | ---------------------- | ------ | ------------------------- | ------------------------ |
+    | Public                 | None   | Anywhere                  | No restriction           |
+    | Protected/Semi-Private | `_`    | Class & Subclasses        | Discouraged from outside |
+    | Private                | `__`   | Class only (name-mangled) | Full encapsulation       |
+
 
 22. **Difference between class variable and instance variable?**
     Class variables are shared across instances; instance variables are unique per object. Both are used for storing data in classes.
@@ -108,6 +130,13 @@
 
 26. **Difference between `read()`, `readline()`, `readlines()`?**
     `read()` reads the entire file, `readline()` reads one line, `readlines()` returns a list of lines. Use based on memory and processing needs.
+
+    | Method        | What it does                          | Use Case                                  |
+    | ------------- | ------------------------------------- | ----------------------------------------- |
+    | `read()`      | Reads the **entire file** as a string | Small files where you need all content    |
+    | `readline()`  | Reads **one line at a time**          | Large files, line-by-line processing      |
+    | `readlines()` | Reads **all lines into a list**       | Need to iterate over lines multiple times |
+
 
 27. **Difference between `import module` and `from module import function`?**
     `import module` requires prefixing with `module.func()`, `from module import func` allows direct access to `func()`.
