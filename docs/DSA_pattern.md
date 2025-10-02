@@ -151,3 +151,82 @@ while left <= right:
     else:
         right = mid - 1
 ```
+
+## 9. Linked List Pattern
+
+**Description:**
+Manipulating nodes, reversing, merging, detecting cycles.
+
+# Reverse Linked List
+
+```
+prev, curr = None, head
+while curr:
+    nxt = curr.next
+    curr.next = prev
+    prev = curr
+    curr = nxt
+return prev
+```
+
+## 10. Tree Traversal (DFS & BFS)
+
+Binary tree traversals are fundamental patterns for solving tree problems.
+
+DFS (Depth-First Traversals)
+1. Inorder Traversal (Left → Root → Right)
+
+```
+def inorder(root):
+    if not root: return
+    inorder(root.left)
+    print(root.val)
+    inorder(root.right)
+```
+
+2. Preorder Traversal (Root → Left → Right)
+
+```
+def preorder(root):
+    if not root: return
+    print(root.val)
+    preorder(root.left)
+    preorder(root.right)
+```
+
+3. Postorder Traversal (Left → Right → Root)
+
+```
+def postorder(root):
+    if not root: return
+    postorder(root.left)
+    postorder(root.right)
+    print(root.val)
+```
+
+4. BFS (Level Order Traversal)
+
+```
+from collections import deque
+
+def bfs(root):
+    if not root: return
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        print(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+```
+
+🔑 When to use what?
+
+Inorder → Sorted output for BSTs.
+
+Preorder → Useful for copying tree / serialization.
+
+Postorder → Useful for deleting tree / bottom-up calculations.
+
+BFS → Best for shortest path, level-wise problems.
