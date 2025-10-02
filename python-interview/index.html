@@ -795,6 +795,73 @@
 <li>
 <p><strong>Difference between <code>@staticmethod</code> and <code>@classmethod</code>?</strong>
     <code>@staticmethod</code> does not access class or instance data, while <code>@classmethod</code> takes the class itself as the first parameter. Both decorate methods differently.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>@staticmethod</code></th>
+<th><code>@classmethod</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First argument</td>
+<td>None</td>
+<td><code>cls</code> (the class itself)</td>
+</tr>
+<tr>
+<td>Access instance data</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Access class data</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Usage</td>
+<td>Utility/helper functions</td>
+<td>Work with class-level data/constructors</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Inheritance</th>
+<th>Polymorphism</th>
+<th>Encapsulation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Definition</strong></td>
+<td>Derive properties &amp; methods from another class</td>
+<td>Same method call behaves differently for different objects</td>
+<td>Hides internal details of an object</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Code reuse, hierarchy</td>
+<td>Flexibility, dynamic behavior</td>
+<td>Data protection, controlled access</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>class Dog(Animal)</code></td>
+<td><code>dog.speak()</code>, <code>cat.speak()</code></td>
+<td>Private variables <code>__balance</code></td>
+</tr>
+<tr>
+<td><strong>Key Concept</strong></td>
+<td>"is-a" relationship</td>
+<td>Method overriding / operator overloading</td>
+<td>Data hiding / getter &amp; setter</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li>
 <p><strong>What is inheritance?</strong>
@@ -807,6 +874,36 @@
 <li>
 <p><strong>What is encapsulation?</strong>
     Encapsulation hides internal object details using private variables. Access is provided via getter/setter methods.</p>
+<table>
+<thead>
+<tr>
+<th>Access Type</th>
+<th>Prefix</th>
+<th>Accessible From</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public</td>
+<td>None</td>
+<td>Anywhere</td>
+<td>No restriction</td>
+</tr>
+<tr>
+<td>Protected/Semi-Private</td>
+<td><code>_</code></td>
+<td>Class &amp; Subclasses</td>
+<td>Discouraged from outside</td>
+</tr>
+<tr>
+<td>Private</td>
+<td><code>__</code></td>
+<td>Class only (name-mangled)</td>
+<td>Full encapsulation</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li>
 <p><strong>Difference between class variable and instance variable?</strong>
@@ -827,6 +924,32 @@
 <li>
 <p><strong>Difference between <code>read()</code>, <code>readline()</code>, <code>readlines()</code>?</strong>
     <code>read()</code> reads the entire file, <code>readline()</code> reads one line, <code>readlines()</code> returns a list of lines. Use based on memory and processing needs.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>What it does</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read()</code></td>
+<td>Reads the <strong>entire file</strong> as a string</td>
+<td>Small files where you need all content</td>
+</tr>
+<tr>
+<td><code>readline()</code></td>
+<td>Reads <strong>one line at a time</strong></td>
+<td>Large files, line-by-line processing</td>
+</tr>
+<tr>
+<td><code>readlines()</code></td>
+<td>Reads <strong>all lines into a list</strong></td>
+<td>Need to iterate over lines multiple times</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li>
 <p><strong>Difference between <code>import module</code> and <code>from module import function</code>?</strong>
