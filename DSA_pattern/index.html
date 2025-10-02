@@ -853,45 +853,51 @@
 <p><strong>Description:</strong>
 Manipulating nodes, reversing, merging, detecting cycles.</p>
 <h1 id="reverse-linked-list">Reverse Linked List<a class="headerlink" href="#reverse-linked-list" title="Permanent link">&para;</a></h1>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>prev, curr = None, head
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>while curr:
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    nxt = curr.next
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    curr.next = prev
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    prev = curr
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    curr = nxt
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>return prev
+<div class="codehilite"><pre><span></span><code>```
+prev, curr = None, head
+while curr:
+    nxt = curr.next
+    curr.next = prev
+    prev = curr
+    curr = nxt
+return prev
+```
 </code></pre></div>
+
 <h2 id="10-tree-traversal-dfs-bfs">10. Tree Traversal (DFS &amp; BFS)<a class="headerlink" href="#10-tree-traversal-dfs-bfs" title="Permanent link">&para;</a></h2>
 <p>Binary tree traversals are fundamental patterns for solving tree problems.</p>
 <p>DFS (Depth-First Traversals)
 1. Inorder Traversal (Left → Root → Right)</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>def inorder(root):
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    if not root: return
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    inorder(root.left)
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    print(root.val)
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    inorder(root.right)
+<div class="codehilite"><pre><span></span><code>```
+def inorder(root):
+    if not root: return
+    inorder(root.left)
+    print(root.val)
+    inorder(root.right)
+```
 </code></pre></div>
+
 <ol>
-<li>Preorder Traversal (Root → Left → Right)</li>
-</ol>
+<li>
+<p>Preorder Traversal (Root → Left → Right)</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>def preorder(root):
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    if not root: return
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    print(root.val)
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    preorder(root.left)
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    preorder(root.right)
 </code></pre></div>
-<ol>
-<li>Postorder Traversal (Left → Right → Root)</li>
-</ol>
+</li>
+<li>
+<p>Postorder Traversal (Left → Right → Root)</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>def postorder(root):
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    if not root: return
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    postorder(root.left)
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    postorder(root.right)
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    print(root.val)
 </code></pre></div>
-<ol>
-<li>BFS (Level Order Traversal)</li>
-</ol>
+</li>
+<li>
+<p>BFS (Level Order Traversal)</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>from collections import deque
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>def bfs(root):
@@ -905,6 +911,8 @@ Manipulating nodes, reversing, merging, detecting cycles.</p>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>        if node.right:
 <a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>            queue.append(node.right)
 </code></pre></div>
+</li>
+</ol>
 <p>🔑 When to use what?</p>
 <p>Inorder → Sorted output for BSTs.</p>
 <p>Preorder → Useful for copying tree / serialization.</p>
