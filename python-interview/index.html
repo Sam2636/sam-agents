@@ -18,6 +18,8 @@
         <link rel="prev" href="../DSA_pattern/">
       
       
+        <link rel="next" href="../basics-test1/">
+      
       
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
@@ -543,6 +545,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basics-test1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    python-test-1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -968,8 +993,31 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot divide by zero&quot;</span><span class="p">)</span>
 </code></pre></div>
 <ol>
-<li><strong>Difference between <code>finally</code> and <code>else</code> in try-except?</strong>
-    <code>finally</code> executes always, regardless of errors. <code>else</code> executes only if no exception occurs.</li>
+<li>
+<p><strong>Difference between <code>finally</code> and <code>else</code> in try-except?</strong>
+    <code>finally</code> executes always, regardless of errors. <code>else</code> executes only if no exception occurs.</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Runs When</th>
+<th>Common Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>else</code></td>
+<td>Only if <strong>no exception</strong></td>
+<td>Code that depends on success</td>
+</tr>
+<tr>
+<td><code>finally</code></td>
+<td><strong>Always</strong>, whether success or failure</td>
+<td>Cleanup tasks (close file, disconnect DB)</td>
+</tr>
+</tbody>
+</table>
+</li>
 </ol>
 <hr />
 <h2 id="advanced-advanced-oop-iterators-generators-concurrency-modules"><strong>Advanced (Advanced OOP, Iterators, Generators, Concurrency, Modules)</strong><a class="headerlink" href="#advanced-advanced-oop-iterators-generators-concurrency-modules" title="Permanent link">&para;</a></h2>
@@ -977,10 +1025,69 @@
 <li>
 <p><strong>What is Python GIL?</strong>
     The Global Interpreter Lock allows only one thread to execute Python bytecode at a time. It limits CPU-bound multi-threading.</p>
+<div class="codehilite"><pre><span></span><code>Why does Python have the GIL?
+
+Because of memory management.
+Python uses a feature called reference counting to track how many objects are in use.
+To keep this system safe in multi-threaded programs, the GIL ensures only one thread modifies memory at a time — preventing data corruption.
+</code></pre></div>
+
 </li>
 <li>
 <p><strong>Difference between multithreading and multiprocessing?</strong>
     Threading runs multiple threads in shared memory, limited by GIL. Multiprocessing uses separate processes for true parallelism.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Multithreading</th>
+<th>Multiprocessing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parallelism</td>
+<td>Limited by GIL (CPU-bound)</td>
+<td>True parallelism</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Shared memory</td>
+<td>Separate memory</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>I/O-bound tasks</td>
+<td>CPU-bound tasks</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>How it runs</th>
+<th>Expected Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sequential</strong></td>
+<td>Tasks run <strong>one by one</strong></td>
+<td>Longest time (roughly 4× single task time)</td>
+</tr>
+<tr>
+<td><strong>Threading</strong></td>
+<td>Tasks run in <strong>threads</strong> (GIL restricts CPU-bound tasks)</td>
+<td>Slightly faster than sequential, but not by much</td>
+</tr>
+<tr>
+<td><strong>Multiprocessing</strong></td>
+<td>Tasks run in <strong>separate processes</strong></td>
+<td><strong>True parallelism</strong>, fastest on multi-core CPU</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li>
 <p><strong>What is a generator?</strong>
