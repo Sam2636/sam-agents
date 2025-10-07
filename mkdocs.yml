@@ -43,7 +43,7 @@ nav:
           - Dsa-Overview: DSA.md
           - Patterns: DSA_pattern.md
           - python-interview: python-interview.md
-          - python-test-1: python-test1.md
+          - python-test-1: basics-test1.md
 
 plugins:
   - search
