@@ -155,6 +155,12 @@ except ZeroDivisionError: print("Cannot divide by zero")
 30. **Difference between `finally` and `else` in try-except?**
     `finally` executes always, regardless of errors. `else` executes only if no exception occurs.
 
+    | Block     | Runs When                              | Common Use                                |
+    | --------- | -------------------------------------- | ----------------------------------------- |
+    | `else`    | Only if **no exception**               | Code that depends on success              |
+    | `finally` | **Always**, whether success or failure | Cleanup tasks (close file, disconnect DB) |
+
+
 ---
 
 ## **Advanced (Advanced OOP, Iterators, Generators, Concurrency, Modules)**
@@ -162,8 +168,27 @@ except ZeroDivisionError: print("Cannot divide by zero")
 31. **What is Python GIL?**
     The Global Interpreter Lock allows only one thread to execute Python bytecode at a time. It limits CPU-bound multi-threading.
 
+        Why does Python have the GIL?
+
+        Because of memory management.
+        Python uses a feature called reference counting to track how many objects are in use.
+        To keep this system safe in multi-threaded programs, the GIL ensures only one thread modifies memory at a time — preventing data corruption.
+
 32. **Difference between multithreading and multiprocessing?**
     Threading runs multiple threads in shared memory, limited by GIL. Multiprocessing uses separate processes for true parallelism.
+
+    | Feature     | Multithreading             | Multiprocessing  |
+    | ----------- | -------------------------- | ---------------- |
+    | Parallelism | Limited by GIL (CPU-bound) | True parallelism |
+    | Memory      | Shared memory              | Separate memory  |
+    | Best for    | I/O-bound tasks            | CPU-bound tasks  |
+
+    | Version             | How it runs                                              | Expected Time                                    |
+    | ------------------- | -------------------------------------------------------- | ------------------------------------------------ |
+    | **Sequential**      | Tasks run **one by one**                                 | Longest time (roughly 4× single task time)       |
+    | **Threading**       | Tasks run in **threads** (GIL restricts CPU-bound tasks) | Slightly faster than sequential, but not by much |
+    | **Multiprocessing** | Tasks run in **separate processes**                      | **True parallelism**, fastest on multi-core CPU  |
+
 
 33. **What is a generator?**
     A generator is an iterator that yields values one at a time using `yield`. It is memory-efficient for large datasets.
