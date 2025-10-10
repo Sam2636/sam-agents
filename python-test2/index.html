@@ -12,13 +12,11 @@
         <meta name="author" content="Sam Dhanaseelan">
       
       
-        <link rel="canonical" href="https://sam2636.github.io/sam-agents/langgraph-rag/multigent/">
+        <link rel="canonical" href="https://sam2636.github.io/sam-agents/langgraph-rag/python-test2/">
       
       
-        <link rel="prev" href="../usage/">
+        <link rel="prev" href="../basics-test1/">
       
-      
-        <link rel="next" href="../Python-basic/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -26,7 +24,7 @@
     
     
       
-        <title>MultiGent - SamraG</title>
+        <title>python-test-2 - SamraG</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#multigent-section" class="md-skip">
+        <a href="#python-practice-questions-with-examples-15" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MultiGent
+              python-test-2
             
           </span>
         </div>
@@ -279,19 +277,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../multigent/" class="md-nav__link">
         
   
   
@@ -302,7 +291,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -311,8 +299,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -323,13 +313,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -345,7 +333,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Studying
@@ -356,6 +344,8 @@
                 
   
   
+    
+  
   
   
     
@@ -365,13 +355,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" checked>
         
           
           <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
@@ -387,7 +375,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_1">
             <span class="md-nav__icon md-icon"></span>
             DSA
@@ -513,10 +501,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../python-test2/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -527,6 +524,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -581,29 +579,70 @@
 
 
 
-<h1 id="multigent-section">MultiGent Section<a class="headerlink" href="#multigent-section" title="Permanent link">&para;</a></h1>
-<h1 id="multigent-rag-multi-agent-pipeline">MultiGent: RAG Multi-Agent Pipeline<a class="headerlink" href="#multigent-rag-multi-agent-pipeline" title="Permanent link">&para;</a></h1>
-<p>This page describes the <strong>RAG (Retrieval-Augmented Generation) Multi-Agent system</strong> built using <strong>LangGraph</strong> and <strong>LangChain</strong>.</p>
 <hr />
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The MultiGent system orchestrates multiple agents to answer questions using external knowledge.<br />
-It consists of three main agents:</p>
+<h1 id="python-practice-questions-with-examples-15">🧠 Python Practice Questions with Examples (15)<a class="headerlink" href="#python-practice-questions-with-examples-15" title="Permanent link">&para;</a></h1>
 <ol>
-<li><strong>Retriever Agent</strong> – fetches relevant documents from a vector store.  </li>
-<li><strong>Summarizer Agent</strong> – summarizes the retrieved documents.  </li>
-<li><strong>QA Agent</strong> – generates answers based on the summarized context.</li>
+<li>
+<p><strong>Count how many vowels are present in a given sentence.</strong>
+   🔹 <em>Example:</em> <code>"Learning Python is fun!"</code> → Output: <code>6</code></p>
+</li>
+<li>
+<p><strong>Reverse each word in a sentence while keeping the word order the same.</strong>
+   🔹 <em>Example:</em> <code>"Hello world"</code> → <code>"olleH dlrow"</code></p>
+</li>
+<li>
+<p><strong>Given a list of numbers, find how many are divisible by both 3 and 5.</strong>
+   🔹 <em>Example:</em> <code>[15, 30, 10, 9, 45]</code> → Output: <code>3</code></p>
+</li>
+<li>
+<p><strong>Print the names of students who scored 50 or more marks using two lists: names and scores.</strong>
+   🔹 <em>Example:</em> <code>names = ['Alice', 'Bob', 'Charlie']</code>, <code>scores = [45, 75, 60]</code> → Output: <code>['Bob', 'Charlie']</code></p>
+</li>
+<li>
+<p><strong>Replace all negative numbers in a list with 0.</strong>
+   🔹 <em>Example:</em> <code>[3, -1, 7, -5, 9]</code> → <code>[3, 0, 7, 0, 9]</code></p>
+</li>
+<li>
+<p><strong>Find the most frequent character in a given string.</strong>
+   🔹 <em>Example:</em> <code>"programming"</code> → Output: <code>'g'</code></p>
+</li>
+<li>
+<p><strong>Check if two given strings are anagrams of each other.</strong>
+   🔹 <em>Example:</em> <code>"listen"</code> and <code>"silent"</code> → Output: <code>True</code></p>
+</li>
+<li>
+<p><strong>Remove duplicate elements from a list but maintain their original order.</strong>
+   🔹 <em>Example:</em> <code>[1, 2, 2, 3, 1, 4]</code> → <code>[1, 2, 3, 4]</code></p>
+</li>
+<li>
+<p><strong>Create a list of squares of all even numbers from 1 to 20.</strong>
+   🔹 <em>Example Output:</em> <code>[4, 16, 36, 64, 100, 144, 196, 256, 324, 400]</code></p>
+</li>
+<li>
+<p><strong>Find the second largest number in a list without using built-in sorting.</strong>
+    🔹 <em>Example:</em> <code>[10, 40, 30, 20]</code> → Output: <code>30</code></p>
+</li>
+<li>
+<p><strong>Count how many words start with a vowel in a given sentence.</strong>
+    🔹 <em>Example:</em> <code>"An elephant eats apples under a tree"</code> → Output: <code>5</code></p>
+</li>
+<li>
+<p><strong>Check if a given string is a palindrome (reads the same backward).</strong>
+    🔹 <em>Example:</em> <code>"madam"</code> → Output: <code>True</code></p>
+</li>
+<li>
+<p><strong>Count the frequency of each word in a sentence (ignore case).</strong>
+    🔹 <em>Example:</em> <code>"Hello hello world"</code> → Output: <code>{'hello': 2, 'world': 1}</code></p>
+</li>
+<li>
+<p><strong>Combine two lists — one with names and another with scores — and display them together.</strong>
+    🔹 <em>Example:</em> <code>names = ['Alice', 'Bob']</code>, <code>scores = [90, 80]</code> → Output: <code>[('Alice', 90), ('Bob', 80)]</code></p>
+</li>
+<li>
+<p><strong>Given a string, remove all special characters and digits, leaving only alphabets.</strong>
+    🔹 <em>Example:</em> <code>"H3ll0! Pyt#on@2025"</code> → Output: <code>"HllPytone"</code></p>
+</li>
 </ol>
-<hr />
-<h2 id="architecture-diagram">Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Permanent link">&para;</a></h2>
-<p>The following diagram shows the flow of the multi-agent system:</p>
-<p>```mermaid
-graph TD
-    START --&gt; retriever
-    retriever --&gt; summarizer
-    summarizer --&gt; qa
-    qa --&gt; END</p>
-<p><img alt="My Image" src="../images/multi-agent.png" /></p>
-<p>You can add multiple images:</p>
 
 
 
