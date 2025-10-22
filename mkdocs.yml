@@ -46,6 +46,9 @@ nav:
           - python-test-1: basics-test1.md
           - python-test-2: python-test2.md
 
+      - DSA Solutions:
+          Two-pointer: Two-pointer.md
+          
 plugins:
   - search
 
