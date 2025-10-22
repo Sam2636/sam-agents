@@ -26,7 +26,7 @@ def two_pointer(nums, target=None):
 
 ---
 
-## 🧩 Problem 1: [Two Sum II – Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/) (LeetCode 167) [Medium]
+## [Two Sum II – Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 Task: Find two numbers that add up to the target.
 
@@ -48,7 +48,7 @@ def twoSum(numbers, target):
 
 ---
 
-## 🧩 Problem 2: [Move Zeroes](https://leetcode.com/problems/move-zeroes/) (LeetCode 283) [Easy]
+## [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 Task: Move all zeroes to the end, maintaining order.
 
@@ -67,7 +67,7 @@ def moveZeroes(nums):
 
 ---
 
-## 🧩 Problem 3: [Reverse String](https://leetcode.com/problems/reverse-string/) (LeetCode 344) [Easy]
+## [Reverse String](https://leetcode.com/problems/reverse-string/)
 
 Task: Reverse characters in a string in place.
 
@@ -86,7 +86,7 @@ def reverseString(s):
 
 ---
 
-## 🧩 Problem 4: [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) (LeetCode 125) [Easy]
+## [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 Task: Check if a string reads the same backward and forward.
 
@@ -107,7 +107,7 @@ def isPalindrome(s):
 
 ---
 
-## 🧩 Problem 5: [Merge Sorted Arrays](https://leetcode.com/problems/merge-sorted-array/) (LeetCode 88) [Easy]
+## [Merge Sorted Arrays](https://leetcode.com/problems/merge-sorted-array/)
 
 Task: Merge two sorted arrays `nums1` and `nums2` into `nums1`.
 
@@ -129,7 +129,7 @@ def merge(nums1, m, nums2, n):
 
 ---
 
-## 🧩 Problem 6: [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/) (LeetCode 26) [Easy]
+## [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/) 
 
 Task: Remove duplicates in-place from a sorted array.
 
@@ -148,7 +148,7 @@ def removeDuplicates(nums):
 
 ---
 
-## 🧩 Problem 7: [Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/) (LeetCode 977) [Easy]
+## [Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/) 
 
 Task: Return the squares of the numbers in non-decreasing order.
 
@@ -171,7 +171,7 @@ def sortedSquares(nums):
 
 ---
 
-## 🧩 Problem 8: [Remove Element](https://leetcode.com/problems/remove-element/) (LeetCode 27) [Easy]
+## [Remove Element](https://leetcode.com/problems/remove-element/)
 
 Task: Remove all occurrences of `val` in-place.
 
@@ -190,7 +190,7 @@ def removeElement(nums, val):
 
 ---
 
-## 🧩 Problem 9: [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) (LeetCode 11) [Medium]
+## [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) 
 
 Task: Find the maximum area between two lines.
 
@@ -214,7 +214,7 @@ def maxArea(height):
 
 ---
 
-## 🧩 Problem 10: [Pairs with Given Difference](https://www.hackerrank.com/challenges/pairs/problem) (HackerRank) [Medium]
+## [Pairs with Given Difference](https://www.hackerrank.com/challenges/pairs/problem) 
 
 Task: Count pairs with difference `k`.
 
