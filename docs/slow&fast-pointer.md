@@ -4,6 +4,36 @@ This document covers **7 core problems** that use the **slow and fast pointer te
 
 Each solution includes the **approach**, **intuition**, and **code** with meaningful variable names.
 
+⚙️ Slow and Fast Pointer Template (Linked List)
+```python
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def slow_fast_linked_list(head):
+    slow = head  # moves one step at a time
+    fast = head  # moves two steps at a time
+
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        
+        # Example: check condition here
+        # if some_condition(slow, fast):
+        #     return something
+
+    return slow  # could be middle node or other result depending on problem
+```
+
+✅ Common Use Cases:
+Detect Cycle in Linked List (LeetCode 141)
+### If slow == fast at some point → cycle exists.
+Find Middle Node (LeetCode 876)
+### When fast reaches the end → slow is at middle.
+Remove N-th Node From End (LeetCode 19)
+### Move fast n steps ahead, then move both slow and fast together.
+
 ---
 
 ## 1. [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
