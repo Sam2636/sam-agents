@@ -9,7 +9,7 @@ print("Loading .env from:", os.path.abspath(dotenv_path))
 load_dotenv(dotenv_path)
 
 api_key = os.getenv("OPENAI_API_KEY")
-print("API Key:", api_key)  # Should now print your key
+# print("API Key:", api_key)  # Should now print your key
 
 def build_vectorstore(docs):
     embeddings = OpenAIEmbeddings(openai_api_key=api_key)
