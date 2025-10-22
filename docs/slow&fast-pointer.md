@@ -29,11 +29,11 @@ def slow_fast_linked_list(head):
 
 ✅ Common Use Cases:
 Detect Cycle in Linked List (LeetCode 141)
-### If slow == fast at some point → cycle exists.
+If slow == fast at some point → cycle exists.
 Find Middle Node (LeetCode 876)
-### When fast reaches the end → slow is at middle.
+When fast reaches the end → slow is at middle.
 Remove N-th Node From End (LeetCode 19)
-### Move fast n steps ahead, then move both slow and fast together.
+Move fast n steps ahead, then move both slow and fast together.
 
 ---
 
