@@ -47,7 +47,8 @@ nav:
           - python-test-2: python-test2.md
       - DSA Solutions:
           - Two-pointer: Two-pointer.md
-          
+          - Slow-fast-pointer: slow&fast-pointer.md
+
 plugins:
   - search
 
