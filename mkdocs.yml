@@ -48,6 +48,7 @@ nav:
       - DSA Solutions:
           - Two-pointer: Two-pointer.md
           - Slow-fast-pointer: slow&fast-pointer.md
+          - Sliding-window: sliding-window.md
 
 plugins:
   - search
