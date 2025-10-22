@@ -54,11 +54,12 @@ Task: Move all zeroes to the end, maintaining order.
 
 ```python
 def moveZeroes(nums):
-    position = 0
-    for current in range(len(nums)):
-        if nums[current] != 0:
-            nums[position], nums[current] = nums[current], nums[position]
-            position += 1
+    slow, fast = 0, 0
+    while fast < len(nums):
+        if nums[fast] != 0:
+            nums[slow], nums[fast] = nums[fast], nums[slow]
+            slow += 1
+        fast += 1
     return nums
 ```
 
@@ -92,18 +93,28 @@ Task: Check if a string reads the same backward and forward.
 
 ```python
 def isPalindrome(s):
-    cleaned = ''.join(ch.lower() for ch in s if ch.isalnum())
-    left, right = 0, len(cleaned) - 1
+    left, right = 0, len(s) - 1
+    
     while left < right:
-        if cleaned[left] != cleaned[right]:
+        # Skip non-alphanumeric on the left
+        while left < right and not s[left].isalnum():
+            left += 1
+        # Skip non-alphanumeric on the right
+        while left < right and not s[right].isalnum():
+            right -= 1
+        
+        # Compare characters
+        if s[left].lower() != s[right].lower():
             return False
+        
         left += 1
         right -= 1
+    
     return True
 ```
 
 **Time Complexity:** O(n)
-**Space Complexity:** O(n)
+**Space Complexity:** O(1)
 
 ---
 
@@ -135,12 +146,16 @@ Task: Remove duplicates in-place from a sorted array.
 
 ```python
 def removeDuplicates(nums):
-    insert_pos = 1
-    for current in range(1, len(nums)):
-        if nums[current] != nums[current - 1]:
-            nums[insert_pos] = nums[current]
-            insert_pos += 1
-    return insert_pos
+    if not nums:
+        return 0
+    
+    slow = 0  # points to last unique element
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[slow]:
+            slow += 1
+            nums[slow] = nums[fast]
+    return slow + 1  # length of unique elements
+
 ```
 
 **Time Complexity:** O(n)
@@ -177,12 +192,13 @@ Task: Remove all occurrences of `val` in-place.
 
 ```python
 def removeElement(nums, val):
-    insert_pos = 0
-    for current in range(len(nums)):
-        if nums[current] != val:
-            nums[insert_pos] = nums[current]
-            insert_pos += 1
-    return insert_pos
+    slow = 0  # points to the position to place next non-val element
+    for fast in range(len(nums)):
+        if nums[fast] != val:
+            nums[slow] = nums[fast]
+            slow += 1
+    return slow  # new length of the array without val
+
 ```
 
 **Time Complexity:** O(n)
