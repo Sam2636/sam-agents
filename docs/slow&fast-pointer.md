@@ -3,6 +3,7 @@
 This document covers **7 core problems** that use the **slow and fast pointer technique**, primarily for **linked lists** and **cycle detection** problems.
 
 Each solution includes the **approach**, **intuition**, and **code** with meaningful variable names.
+## NOTES [LINKED LIST](https://www.tutorialspoint.com/data_structures_algorithms/linked_list_algorithms.htm)
 
 ⚙️ Slow and Fast Pointer Template (Linked List)
 ```python
