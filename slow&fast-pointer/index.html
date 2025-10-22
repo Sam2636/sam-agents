@@ -650,6 +650,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#if-slow-fast-at-some-point-cycle-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      If slow == fast at some point → cycle exists.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-fast-reaches-the-end-slow-is-at-middle" class="md-nav__link">
+    <span class="md-ellipsis">
+      When fast reaches the end → slow is at middle.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#move-fast-n-steps-ahead-then-move-both-slow-and-fast-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      Move fast n steps ahead, then move both slow and fast together.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-141-linked-list-cycle" class="md-nav__link">
     <span class="md-ellipsis">
       1. 141. Linked List Cycle
@@ -763,6 +790,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#if-slow-fast-at-some-point-cycle-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      If slow == fast at some point → cycle exists.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-fast-reaches-the-end-slow-is-at-middle" class="md-nav__link">
+    <span class="md-ellipsis">
+      When fast reaches the end → slow is at middle.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#move-fast-n-steps-ahead-then-move-both-slow-and-fast-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      Move fast n steps ahead, then move both slow and fast together.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-141-linked-list-cycle" class="md-nav__link">
     <span class="md-ellipsis">
       1. 141. Linked List Cycle
@@ -844,150 +898,177 @@
 <h1 id="slow-and-fast-pointer-pattern">🐢🐇 Slow and Fast Pointer Pattern<a class="headerlink" href="#slow-and-fast-pointer-pattern" title="Permanent link">&para;</a></h1>
 <p>This document covers <strong>7 core problems</strong> that use the <strong>slow and fast pointer technique</strong>, primarily for <strong>linked lists</strong> and <strong>cycle detection</strong> problems.</p>
 <p>Each solution includes the <strong>approach</strong>, <strong>intuition</strong>, and <strong>code</strong> with meaningful variable names.</p>
+<p>⚙️ Slow and Fast Pointer Template (Linked List)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ListNode</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">next</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">slow_fast_linked_list</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">slow</span> <span class="o">=</span> <span class="n">head</span>  <span class="c1"># moves one step at a time</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">fast</span> <span class="o">=</span> <span class="n">head</span>  <span class="c1"># moves two steps at a time</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">while</span> <span class="n">fast</span> <span class="ow">and</span> <span class="n">fast</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">slow</span> <span class="o">=</span> <span class="n">slow</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="n">fast</span> <span class="o">=</span> <span class="n">fast</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="c1"># Example: check condition here</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="c1"># if some_condition(slow, fast):</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="c1">#     return something</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">return</span> <span class="n">slow</span>  <span class="c1"># could be middle node or other result depending on problem</span>
+</code></pre></div></p>
+<p>✅ Common Use Cases:
+Detect Cycle in Linked List (LeetCode 141)</p>
+<h3 id="if-slow-fast-at-some-point-cycle-exists">If slow == fast at some point → cycle exists.<a class="headerlink" href="#if-slow-fast-at-some-point-cycle-exists" title="Permanent link">&para;</a></h3>
+<p>Find Middle Node (LeetCode 876)</p>
+<h3 id="when-fast-reaches-the-end-slow-is-at-middle">When fast reaches the end → slow is at middle.<a class="headerlink" href="#when-fast-reaches-the-end-slow-is-at-middle" title="Permanent link">&para;</a></h3>
+<p>Remove N-th Node From End (LeetCode 19)</p>
+<h3 id="move-fast-n-steps-ahead-then-move-both-slow-and-fast-together">Move fast n steps ahead, then move both slow and fast together.<a class="headerlink" href="#move-fast-n-steps-ahead-then-move-both-slow-and-fast-together" title="Permanent link">&para;</a></h3>
 <hr />
 <h2 id="1-141-linked-list-cycle">1. <a href="https://leetcode.com/problems/linked-list-cycle/">141. Linked List Cycle</a><a class="headerlink" href="#1-141-linked-list-cycle" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Use two pointers — slow moves one step, fast moves two. If they ever meet, a cycle exists.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">hasCycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            <span class="k">if</span> <span class="n">slow_pointer</span> <span class="o">==</span> <span class="n">fast_pointer</span><span class="p">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                <span class="k">return</span> <span class="kc">True</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="k">return</span> <span class="kc">False</span>
-</code></pre></div>
-<hr />
-<h2 id="2-142-linked-list-cycle-ii">2. <a href="https://leetcode.com/problems/linked-list-cycle-ii/">142. Linked List Cycle II</a><a class="headerlink" href="#2-142-linked-list-cycle-ii" title="Permanent link">&para;</a></h2>
-<p><strong>Intuition:</strong>
-After detecting a cycle, reset one pointer to the head and move both at the same speed — they meet at the cycle start.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">detectCycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">hasCycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="k">if</span> <span class="n">slow_pointer</span> <span class="o">==</span> <span class="n">fast_pointer</span><span class="p">:</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                <span class="k">break</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="k">return</span> <span class="kc">None</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">while</span> <span class="n">slow_pointer</span> <span class="o">!=</span> <span class="n">fast_pointer</span><span class="p">:</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="k">return</span> <span class="n">slow_pointer</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<hr />
+<h2 id="2-142-linked-list-cycle-ii">2. <a href="https://leetcode.com/problems/linked-list-cycle-ii/">142. Linked List Cycle II</a><a class="headerlink" href="#2-142-linked-list-cycle-ii" title="Permanent link">&para;</a></h2>
+<p><strong>Intuition:</strong>
+After detecting a cycle, reset one pointer to the head and move both at the same speed — they meet at the cycle start.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">detectCycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="k">if</span> <span class="n">slow_pointer</span> <span class="o">==</span> <span class="n">fast_pointer</span><span class="p">:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>                <span class="k">break</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="k">while</span> <span class="n">slow_pointer</span> <span class="o">!=</span> <span class="n">fast_pointer</span><span class="p">:</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="k">return</span> <span class="n">slow_pointer</span>
 </code></pre></div>
 <hr />
 <h2 id="3-202-happy-number">3. <a href="https://leetcode.com/problems/happy-number/">202. Happy Number</a><a class="headerlink" href="#3-202-happy-number" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Use Floyd’s cycle detection to identify loops in the sum-of-squares process.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_next</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">digit</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">digit</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">isHappy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">n</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">slow_pointer</span> <span class="o">!=</span> <span class="n">fast_pointer</span><span class="p">:</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">slow_pointer</span><span class="p">)</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">get_next</span><span class="p">(</span><span class="n">fast_pointer</span><span class="p">))</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="k">return</span> <span class="n">fast_pointer</span> <span class="o">==</span> <span class="mi">1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_next</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">digit</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">digit</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">isHappy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">n</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">slow_pointer</span> <span class="o">!=</span> <span class="n">fast_pointer</span><span class="p">:</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">slow_pointer</span><span class="p">)</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">get_next</span><span class="p">(</span><span class="n">get_next</span><span class="p">(</span><span class="n">fast_pointer</span><span class="p">))</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="k">return</span> <span class="n">fast_pointer</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div>
 <hr />
 <h2 id="4-876-middle-of-the-linked-list">4. <a href="https://leetcode.com/problems/middle-of-the-linked-list/">876. Middle of the Linked List</a><a class="headerlink" href="#4-876-middle-of-the-linked-list" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Fast pointer moves two nodes while slow moves one. When fast reaches the end, slow will be in the middle.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">middleNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="k">return</span> <span class="n">slow_pointer</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">middleNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="k">return</span> <span class="n">slow_pointer</span>
 </code></pre></div>
 <hr />
 <h2 id="5-234-palindrome-linked-list">5. <a href="https://leetcode.com/problems/palindrome-linked-list/">234. Palindrome Linked List</a><a class="headerlink" href="#5-234-palindrome-linked-list" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Use fast and slow pointers to find the middle, reverse the second half, and compare both halves.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">isPalindrome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">reverse_list</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>            <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>            <span class="k">while</span> <span class="n">node</span><span class="p">:</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                <span class="n">next_node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>                <span class="n">node</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>                <span class="n">prev</span> <span class="o">=</span> <span class="n">node</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>                <span class="n">node</span> <span class="o">=</span> <span class="n">next_node</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>            <span class="k">return</span> <span class="n">prev</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="n">second_half</span> <span class="o">=</span> <span class="n">reverse_list</span><span class="p">(</span><span class="n">slow_pointer</span><span class="p">)</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="n">first_half</span> <span class="o">=</span> <span class="n">head</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>        <span class="k">while</span> <span class="n">second_half</span><span class="p">:</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>            <span class="k">if</span> <span class="n">first_half</span><span class="o">.</span><span class="n">val</span> <span class="o">!=</span> <span class="n">second_half</span><span class="o">.</span><span class="n">val</span><span class="p">:</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>                <span class="k">return</span> <span class="kc">False</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>            <span class="n">first_half</span> <span class="o">=</span> <span class="n">first_half</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>            <span class="n">second_half</span> <span class="o">=</span> <span class="n">second_half</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>        <span class="k">return</span> <span class="kc">True</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">isPalindrome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">reverse_list</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>            <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>            <span class="k">while</span> <span class="n">node</span><span class="p">:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                <span class="n">next_node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>                <span class="n">node</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>                <span class="n">prev</span> <span class="o">=</span> <span class="n">node</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>                <span class="n">node</span> <span class="o">=</span> <span class="n">next_node</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>            <span class="k">return</span> <span class="n">prev</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="n">second_half</span> <span class="o">=</span> <span class="n">reverse_list</span><span class="p">(</span><span class="n">slow_pointer</span><span class="p">)</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>        <span class="n">first_half</span> <span class="o">=</span> <span class="n">head</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>        <span class="k">while</span> <span class="n">second_half</span><span class="p">:</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>            <span class="k">if</span> <span class="n">first_half</span><span class="o">.</span><span class="n">val</span> <span class="o">!=</span> <span class="n">second_half</span><span class="o">.</span><span class="n">val</span><span class="p">:</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>                <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>            <span class="n">first_half</span> <span class="o">=</span> <span class="n">first_half</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>            <span class="n">second_half</span> <span class="o">=</span> <span class="n">second_half</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>        <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div>
 <hr />
 <h2 id="6-19-remove-nth-node-from-end-of-list">6. <a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/">19. Remove Nth Node From End of List</a><a class="headerlink" href="#6-19-remove-nth-node-from-end-of-list" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Maintain a gap of <code>n</code> between fast and slow pointers. When fast reaches the end, slow will be just before the node to delete.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">removeNthFromEnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="n">dummy</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">dummy</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">dummy</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="k">while</span> <span class="n">fast_pointer</span><span class="p">:</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>        <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="k">return</span> <span class="n">dummy</span><span class="o">.</span><span class="n">next</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">removeNthFromEnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="n">dummy</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">dummy</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">dummy</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">while</span> <span class="n">fast_pointer</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="k">return</span> <span class="n">dummy</span><span class="o">.</span><span class="n">next</span>
 </code></pre></div>
 <hr />
 <h2 id="7-143-reorder-list">7. <a href="https://leetcode.com/problems/reorder-list/">143. Reorder List</a><a class="headerlink" href="#7-143-reorder-list" title="Permanent link">&para;</a></h2>
 <p><strong>Intuition:</strong>
 Split list into two halves, reverse the second, then merge alternately.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reorderList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">head</span><span class="p">:</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>            <span class="k">return</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="c1"># Step 1: Find middle</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">slow_pointer</span><span class="p">,</span> <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span><span class="p">,</span> <span class="n">head</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        <span class="c1"># Step 2: Reverse second half</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">slow_pointer</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="k">while</span> <span class="n">curr</span><span class="p">:</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="n">next_node</span> <span class="o">=</span> <span class="n">curr</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="n">curr</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>            <span class="n">prev</span> <span class="o">=</span> <span class="n">curr</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>            <span class="n">curr</span> <span class="o">=</span> <span class="n">next_node</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>        <span class="c1"># Step 3: Merge two halves</span>
-<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>        <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">head</span><span class="p">,</span> <span class="n">prev</span>
-<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>        <span class="k">while</span> <span class="n">second</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
-<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>            <span class="n">temp1</span><span class="p">,</span> <span class="n">temp2</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">next</span><span class="p">,</span> <span class="n">second</span><span class="o">.</span><span class="n">next</span>
-<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>            <span class="n">first</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">second</span>
-<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>            <span class="n">second</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">temp1</span>
-<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>            <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">temp1</span><span class="p">,</span> <span class="n">temp2</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reorderList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">head</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>            <span class="k">return</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="c1"># Step 1: Find middle</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">slow_pointer</span><span class="p">,</span> <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">head</span><span class="p">,</span> <span class="n">head</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="k">while</span> <span class="n">fast_pointer</span> <span class="ow">and</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>            <span class="n">slow_pointer</span> <span class="o">=</span> <span class="n">slow_pointer</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>            <span class="n">fast_pointer</span> <span class="o">=</span> <span class="n">fast_pointer</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>        <span class="c1"># Step 2: Reverse second half</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">slow_pointer</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="k">while</span> <span class="n">curr</span><span class="p">:</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>            <span class="n">next_node</span> <span class="o">=</span> <span class="n">curr</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>            <span class="n">curr</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>            <span class="n">prev</span> <span class="o">=</span> <span class="n">curr</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>            <span class="n">curr</span> <span class="o">=</span> <span class="n">next_node</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>        <span class="c1"># Step 3: Merge two halves</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>        <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">head</span><span class="p">,</span> <span class="n">prev</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>        <span class="k">while</span> <span class="n">second</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>            <span class="n">temp1</span><span class="p">,</span> <span class="n">temp2</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">next</span><span class="p">,</span> <span class="n">second</span><span class="o">.</span><span class="n">next</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>            <span class="n">first</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">second</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>            <span class="n">second</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">temp1</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>            <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">temp1</span><span class="p">,</span> <span class="n">temp2</span>
 </code></pre></div>
 <hr />
 <p>✅ <strong>Summary of Key Uses</strong></p>
