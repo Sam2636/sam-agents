@@ -2,6 +2,7 @@
 
 Sliding window is a technique used for problems involving contiguous subarrays or substrings, enabling optimized O(n) solutions in many cases.
 
+## NOTES [SLIDING WINDOW](https://www.geeksforgeeks.org/dsa/window-sliding-technique/)
 ---
 
 ## ⚙️ Template
