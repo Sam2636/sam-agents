@@ -35,9 +35,13 @@ This set includes **10 theory questions** and **15 coding questions** covering:
 11. Given a tuple of integers, find the maximum and minimum values manually (without `max()` or `min()`).  
 12. From a dictionary of student scores, print the names of students who scored above 75.  
 13. Generate all 3-letter permutations of the word `"ABCDEF"` using `itertools.permutations`.  
-14. Use `functools.reduce()` to find the product of all elements in a list.  
+14. reverse a list using two pointer and linkedlist.  
 15. Write a program to count the frequency of each word in a sentence and store it in a dictionary.
 
+Two poiner
+## 1.[Merge Sorted Arrays](https://leetcode.com/problems/merge-sorted-array/)
+## 2.[Move Zeroes](https://leetcode.com/problems/move-zeroes/)
+## 3.[Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 ---
 
 
