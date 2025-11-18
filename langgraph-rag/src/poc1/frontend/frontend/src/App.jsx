@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 import "./App.css";
 
 function App() {
@@ -7,19 +6,29 @@ function App() {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // 🟢 Fix spacing between streamed chunks
+  const fixSpacing = (prev, chunk) => {
+    if (!prev) return chunk; // first chunk, no fix needed
+
+    // If chunk does not start with space/punctuation → add a space
+    if (!chunk.startsWith(" ") && !chunk.match(/^[.,!?;:]/)) {
+      return prev + " " + chunk;
+    }
+
+    return prev + chunk;
+  };
+
   const handleStream = async () => {
     setResponse("");
     setLoading(true);
 
-    const res = await fetch("http://127.0.0.1:8001/stream-query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
+    const res = await fetch(`http://localhost:8000/joke/stream?topic=${query}`, {
+      method: "GET",
+      headers: { Accept: "text/event-stream" },
     });
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = ""; // 🧠 accumulate small tokens here
 
     while (true) {
       const { done, value } = await reader.read();
@@ -32,48 +41,41 @@ function App() {
 
       for (const line of lines) {
         const data = line.replace("data: ", "").trim();
+
         if (data === "[DONE]") {
           setLoading(false);
           break;
         }
 
-        // Append token to buffer
-        buffer += data + " ";
+        console.log("🔹 Streamed:", data);
 
-        // ✅ Only update UI every few tokens (reduce flicker)
-        if (buffer.length > 30) {
-          console.log("🔹 Streamed chunk:", buffer.trim());
-          setResponse((prev) => prev + buffer);
-          buffer = "";
-        }
+        // 🟢 Apply spacing fix here
+        setResponse((prev) => fixSpacing(prev, data));
       }
     }
 
-    // Flush remaining buffer
-    if (buffer) setResponse((prev) => prev + buffer);
-
-    console.log("✅ Streaming completed");
     setLoading(false);
   };
 
   return (
     <div className="App">
-      <h1>🧠 MCP Agent Stream Demo</h1>
+      <h1>😺 Joke Generator (Streaming)</h1>
+
       <textarea
         rows="3"
-        placeholder="Ask me anything..."
+        placeholder="Enter a topic... e.g., Cats"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+
       <br />
       <button onClick={handleStream} disabled={loading}>
-        {loading ? "Streaming..." : "Send Query"}
+        {loading ? "Streaming..." : "Generate Joke"}
       </button>
 
       <div className="response-box">
         <h3>Response:</h3>
-        {/* ✅ Render proper Markdown */}
-        <ReactMarkdown>{response}</ReactMarkdown>
+        <p>{response}</p>
       </div>
     </div>
   );
