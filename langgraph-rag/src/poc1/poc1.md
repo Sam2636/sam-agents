@@ -42,3 +42,6 @@ poc1/
          uvicorn app:app --reload --port 8001
          .\venv\Scripts\activate
          npm i
+
+zipping-- command
+Compress-Archive -Path . -DestinationPath code.zip

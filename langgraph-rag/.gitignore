@@ -3,3 +3,4 @@
 .env
 /src/.venv
 __pycache__/
+/src/poc1/pocvenv
