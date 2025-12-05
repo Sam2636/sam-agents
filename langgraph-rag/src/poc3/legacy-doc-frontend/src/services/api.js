@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8000"; // FastAPI backend
+const API_BASE = ""; // Use relative path for Vite proxy
 
 export const uploadZip = (file) => {
   const form = new FormData();
@@ -21,4 +21,8 @@ export const stopProcessing = () => {
 
 export const fetchMetrics = () => {
   return axios.get(`${API_BASE}/metrics`);
+};
+
+export const fetchMarkdown = (sessionId) => {
+  return axios.get(`${API_BASE}/markdown/${sessionId}`);
 };

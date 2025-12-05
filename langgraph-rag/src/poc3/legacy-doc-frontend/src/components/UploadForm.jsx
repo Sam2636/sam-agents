@@ -21,7 +21,15 @@ export default function UploadForm({ onStart }) {
       if (onStart) onStart(session_id);
     } catch (err) {
       console.error(err);
-      alert("Error uploading or starting processing: " + err.message);
+      let msg = "Error uploading or starting processing.";
+      if (err.code === "ERR_NETWORK") {
+        msg += " Is the backend server running at http://localhost:8000?";
+      } else if (err.response && err.response.data && err.response.data.detail) {
+        msg += " " + err.response.data.detail;
+      } else {
+        msg += " " + err.message;
+      }
+      alert(msg);
     }
   };
 

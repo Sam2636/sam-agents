@@ -8,8 +8,21 @@ import asyncio
 import json
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
+from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
+from langgraph.store.memory import InMemoryStore
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from utils.sqlite_store import SQLiteStore
+# --- Persistent memory store ---
+store = InMemoryStore()
+
+# --- CompositeBackend: scratch workspace + persistent memory ---
+def backend(rt):
+    return CompositeBackend(
+        default=StateBackend(rt),                  # ephemeral scratch workspace
+        routes={"/memories/": StoreBackend(rt)}    # persistent memory for docs & TODOs
+    )
+
 
 from core.metrics import Metrics
 from core.agent_manager import AgentManager
@@ -93,7 +106,8 @@ async def startup_event():
     """
 
     # Create main deep agent
-    llm = create_deep_agent(model=OPENAI_MODEL, system_prompt=file_system_prompt)
+    llm = create_deep_agent(model=OPENAI_MODEL, system_prompt=file_system_prompt ,backend=backend,
+    store=store)
     logger.info("DeepAgent initialized: %s", OPENAI_MODEL)
 
     try:
@@ -122,7 +136,11 @@ async def upload_zip(file: UploadFile = File(...)):
 
     session_id = str(uuid.uuid4())
     session_folder = WORKSPACE_ROOT / session_id
-    session_folder.mkdir(parents=True, exist_ok=True)
+
+    if session_folder.exists():
+        shutil.rmtree(session_folder)  # clear if by any chance exists
+
+    session_folder.mkdir(parents=True, exist_ok=False)
     zip_path = session_folder / file.filename
 
     try:
@@ -150,18 +168,13 @@ async def upload_zip(file: UploadFile = File(...)):
 @app.post("/start")
 async def start_processing(payload: dict):
     global manager_thread, stop_event, metrics
-    path = payload.get("path")
     session_id = payload.get("session_id")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
 
-    if session_id:
-        folder = WORKSPACE_ROOT / session_id
-        folder.mkdir(parents=True, exist_ok=True)
-    elif path:
-        folder = Path(path).resolve()
-        if not folder.is_dir():
-            raise HTTPException(status_code=400, detail="Path not found")
-    else:
-        raise HTTPException(status_code=400, detail="Provide path or session_id")
+    folder = WORKSPACE_ROOT / session_id
+    if not folder.exists() or not folder.is_dir():
+        raise HTTPException(status_code=400, detail="Session folder not found. Upload ZIP first.")
 
     with manager_lock:
         if manager_thread and manager_thread.is_alive():
@@ -173,6 +186,10 @@ async def start_processing(payload: dict):
         metrics = Metrics()
         doc_generator = DocGenerator()
 
+        # Session-specific store
+        session_store = SQLiteStore(db_path=f"memory/{session_id}.db", namespace=session_id)
+
+        logger.info("Starting AgentManager %s", folder)
         def target():
             try:
                 am = AgentManager(
@@ -181,7 +198,8 @@ async def start_processing(payload: dict):
                     stop_event=stop_event,
                     progress_callback=progress_callback_sync,
                     doc_generator=doc_generator,
-                    workspace_root=str(folder)
+                    workspace_root=str(folder),
+                    store=session_store
                 )
                 am.run()
             except Exception as e:
@@ -217,3 +235,33 @@ async def root():
 @app.get("/ping")
 async def ping():
     return {"status":"ok"}
+
+from fastapi.responses import PlainTextResponse
+
+# --- Fetch generated Markdown for a session ---
+@app.get("/markdown/{session_id}")
+async def get_markdown(session_id: str):
+    """
+    Returns combined Markdown content for a given session.
+    Reads all .md files under the session folder recursively and concatenates them.
+    """
+    session_folder = WORKSPACE_ROOT / session_id
+    if not session_folder.exists() or not session_folder.is_dir():
+        raise HTTPException(status_code=404, detail="Session folder not found")
+
+    md_contents = []
+    for root, dirs, files in os.walk(session_folder):
+        for fname in files:
+            if fname.endswith(".md"):
+                file_path = Path(root) / fname
+                try:
+                    md_contents.append(file_path.read_text(encoding="utf-8"))
+                except Exception as e:
+                    logger.warning("Failed to read %s: %s", file_path, e)
+
+    if not md_contents:
+        return PlainTextResponse("No Markdown generated yet.", status_code=200)
+
+    # Combine all markdown files into a single response
+    combined_md = "\n\n".join(md_contents)
+    return PlainTextResponse(combined_md, status_code=200)
