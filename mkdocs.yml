@@ -45,8 +45,8 @@ nav:
           - Patterns: DSA_pattern.md
           - python-interview: python-interview.md
           - python-test-1: basics-test1.md
-          - python-test-2: python-test2.md
-          - python-test-3: python-test3.md
+          - python-test-2: basics-test2.md
+          - python-test-3: basics-test3.md
       - DSA Solutions:
           - Two-pointer: Two-pointer.md
           - Slow-fast-pointer: slow&fast-pointer.md
@@ -70,7 +70,9 @@ nav:
           - TCS-ion-verbal-4: Verbal-reasoning-batch4.md
       - TCS-ion-coding:
           - TCS-ion-coding-1: coding-batch.md
-
+  - External Resources:
+      - TCS NQT Coding Questions (PrepInsta): https://prepinsta.com/tcs-nqt/placement-papers/coding-questions/
+      - TCS NQT Video - 1 Shot Aptitude & Coding: https://www.youtube.com/watch?v=as_uztzMi_c
 
 plugins:
   - search
