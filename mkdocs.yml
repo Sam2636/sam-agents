@@ -69,7 +69,7 @@ nav:
           - TCS-ion-verbal-3: Verbal-reasoning-batch3.md
           - TCS-ion-verbal-4: Verbal-reasoning-batch4.md
       - TCS-ion-coding:
-          - TCS-ion-coding-1: coding-batch1.md
+          - TCS-ion-coding-1: coding-batch.md
 
 
 plugins:
