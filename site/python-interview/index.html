@@ -1,0 +1,1766 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="RAG Agent Documentation using LangGraph">
+      
+      
+        <meta name="author" content="Sam Dhanaseelan">
+      
+      
+        <link rel="canonical" href="https://sam2636.github.io/sam-agents/langgraph-rag/python-interview/">
+      
+      
+        <link rel="prev" href="../DSA_pattern/">
+      
+      
+        <link rel="next" href="../basics-test1/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>python-interview - SamraG</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CFira+Code:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Fira Code"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#python-interview-questions-and-answers-beginner-advanced" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SamraG" class="md-header__button md-logo" aria-label="SamraG" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SamraG
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              python-interview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SamraG" class="md-nav__button md-logo" aria-label="SamraG" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
+
+    </a>
+    SamraG
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multigent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MultiGent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Studying
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Studying
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DSA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Python-basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsa-Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSA_pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    python-interview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    python-interview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#beginner-basics-data-types-loops-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beginner (Basics, Data Types, Loops, Functions)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intermediate-oop-modules-file-handling-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intermediate (OOP, Modules, File Handling, Error Handling)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-advanced-oop-iterators-generators-concurrency-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced (Advanced OOP, Iterators, Generators, Concurrency, Modules)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basics-test1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    python-test-1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../python-test2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    python-test-2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../python-test3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    python-test-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA Solutions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DSA Solutions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Two-pointer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Two-pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../slow%26fast-pointer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Slow-fast-pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sliding-window/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sliding-window
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TCS-ion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TCS-ion-logical-reasoning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Logical-reasoning-batch1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning-1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Logical-reasoning-batch2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning-2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Logical-reasoning-batch3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Logical-reasoning-batch4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning-4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Logical-reasoning-batch5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCS-ion-logical-reasoning-5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#beginner-basics-data-types-loops-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beginner (Basics, Data Types, Loops, Functions)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intermediate-oop-modules-file-handling-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intermediate (OOP, Modules, File Handling, Error Handling)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-advanced-oop-iterators-generators-concurrency-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced (Advanced OOP, Iterators, Generators, Concurrency, Modules)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<hr />
+<h1 id="python-interview-questions-and-answers-beginner-advanced"><strong>Python Interview Questions and Answers (Beginner → Advanced)</strong><a class="headerlink" href="#python-interview-questions-and-answers-beginner-advanced" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="beginner-basics-data-types-loops-functions"><strong>Beginner (Basics, Data Types, Loops, Functions)</strong><a class="headerlink" href="#beginner-basics-data-types-loops-functions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>What is Python?</strong>
+   Python is a high-level(human readability,memory management autometically), interpreted language(line by line) known for its simplicity and readability. It supports multiple paradigms like procedural, object-oriented, and functional programming.</p>
+</li>
+<li>
+<p><strong>What are Python’s key features?</strong>
+   Python is interpreted, dynamically typed, and object-oriented. It has a rich standard library and allows easy integration with other languages and tools.</p>
+</li>
+<li>
+<p><strong>What is PEP 8?</strong>
+   PEP 8 is Python’s style guide that defines conventions for writing readable and consistent code. Following it improves maintainability and collaboration.</p>
+</li>
+<li>
+<p><strong>Difference between Python 2 and Python 3?</strong>
+   Python 3 uses <code>print()</code> as a function, supports Unicode by default, and division returns a float. Python 2 uses <code>print</code> as a statement and integer division truncates results.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Python 2</th>
+<th>Python 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String type</td>
+<td><code>str</code> = bytes (ASCII only)</td>
+<td><code>str</code> = Unicode by default</td>
+</tr>
+<tr>
+<td>Unicode string</td>
+<td><code>u"hello"</code></td>
+<td><code>"hello"</code> (always Unicode)</td>
+</tr>
+<tr>
+<td>Byte string</td>
+<td><code>"hello"</code> (by default)</td>
+<td><code>b"hello"</code></td>
+</tr>
+<tr>
+<td>Emoji support</td>
+<td>Hard to handle</td>
+<td>Works out-of-the-box</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Python 2 Output</th>
+<th>Python 3 Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>5 / 2</code></td>
+<td><code>2</code> (int)</td>
+<td><code>2.5</code> (float)</td>
+</tr>
+<tr>
+<td><code>5 / 2.0</code></td>
+<td><code>2.5</code> (float)</td>
+<td><code>2.5</code> (float)</td>
+</tr>
+<tr>
+<td><code>5 // 2</code></td>
+<td><code>2</code> (floor)</td>
+<td><code>2</code> (floor)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Python 2 Result</th>
+<th>Python 3 Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>7 / 3</code></td>
+<td><code>2</code> (truncated)</td>
+<td><code>2.333...</code> (float)</td>
+</tr>
+<tr>
+<td><code>7 / 4</code></td>
+<td><code>1</code> (truncated)</td>
+<td><code>1.75</code> (float)</td>
+</tr>
+<tr>
+<td><code>7 // 3</code></td>
+<td><code>2</code></td>
+<td><code>2</code></td>
+</tr>
+<tr>
+<td><code>7 // 4</code></td>
+<td><code>1</code></td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>What are Python’s data types?</strong>
+   Python has types like <code>int</code>, <code>float</code>, <code>str</code>, <code>list</code>, <code>tuple</code>, <code>set</code>, <code>dict</code>, <code>bool</code>, and <code>NoneType</code>. Each type helps store and manipulate specific kinds of data.</p>
+</li>
+<li>
+<p><strong>Mutable vs Immutable types?</strong>
+   Mutable types (<code>list</code>, <code>dict</code>, <code>set</code>) can be changed after creation. Immutable types (<code>tuple</code>, <code>str</code>, <code>int</code>, <code>float</code>) cannot, affecting how they behave in memory.</p>
+</li>
+<li>
+<p><strong>What is Python’s indentation rule?</strong>
+   Python uses indentation to define code blocks instead of braces <code>{}</code>. Proper indentation is mandatory to avoid syntax errors.</p>
+</li>
+<li>
+<p><strong>What are comments in Python?</strong>
+   Single-line comments use <code>#</code>. Multi-line comments use triple quotes <code>'''</code> or <code>"""</code>. They are ignored during execution.</p>
+</li>
+<li>
+<p><strong>What are Python’s built-in functions for collections?</strong>
+   Common ones include <code>len()</code>, <code>sum()</code>, <code>max()</code>, <code>min()</code>, <code>sorted()</code>, and <code>reversed()</code>. These simplify operations on lists, sets, tuples, and dictionaries.</p>
+</li>
+<li>
+<p><strong>Difference between list and tuple?</strong>
+    Lists are mutable and slower, while tuples are immutable, faster, and use less memory. Use tuples for fixed data and lists for changeable data.</p>
+</li>
+<li>
+<p><strong>Difference between list and set?</strong>
+    Lists are ordered and allow duplicates, sets are unordered and store only unique elements. Sets are efficient for membership tests.</p>
+</li>
+<li>
+<p><strong>Difference between <code>==</code> and <code>is</code>?</strong>
+    <code>==</code> checks <strong>value equality</strong>, while <code>is</code> checks <strong>object identity</strong> in memory. Use <code>is</code> to compare object references.</p>
+</li>
+<li>
+<p><strong>How to remove duplicates from a list?</strong>
+    Convert to a set and back: <code>unique = list(set(lst))</code>. This removes duplicates but may reorder elements.</p>
+</li>
+<li>
+<p><strong>How to iterate over a list?</strong>
+    Use <code>for item in list</code> for values, or <code>for i in range(len(list))</code> for indices. <code>enumerate()</code> is preferred for index + value.</p>
+</li>
+<li>
+<p><strong>What is a function in Python?</strong>
+    A function is a reusable block of code that performs a task. It can accept parameters and return values using <code>return</code>.</p>
+</li>
+</ol>
+<hr />
+<h2 id="intermediate-oop-modules-file-handling-error-handling"><strong>Intermediate (OOP, Modules, File Handling, Error Handling)</strong><a class="headerlink" href="#intermediate-oop-modules-file-handling-error-handling" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>What is <code>*args</code> and <code>**kwargs</code>?</strong>
+    <code>*args</code> passes a variable number of positional arguments, while <code>**kwargs</code> passes variable keyword arguments. They make functions flexible.</p>
+</li>
+<li>
+<p><strong>What is a lambda function?</strong>
+    Lambda is an anonymous, single-line function used for simple operations. Example: <code>square = lambda x: x**2</code>.</p>
+</li>
+<li>
+<p><strong>Difference between <code>@staticmethod</code> and <code>@classmethod</code>?</strong>
+    <code>@staticmethod</code> does not access class or instance data, while <code>@classmethod</code> takes the class itself as the first parameter. Both decorate methods differently.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>@staticmethod</code></th>
+<th><code>@classmethod</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First argument</td>
+<td>None</td>
+<td><code>cls</code> (the class itself)</td>
+</tr>
+<tr>
+<td>Access instance data</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Access class data</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Usage</td>
+<td>Utility/helper functions</td>
+<td>Work with class-level data/constructors</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Inheritance</th>
+<th>Polymorphism</th>
+<th>Encapsulation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Definition</strong></td>
+<td>Derive properties &amp; methods from another class</td>
+<td>Same method call behaves differently for different objects</td>
+<td>Hides internal details of an object</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Code reuse, hierarchy</td>
+<td>Flexibility, dynamic behavior</td>
+<td>Data protection, controlled access</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>class Dog(Animal)</code></td>
+<td><code>dog.speak()</code>, <code>cat.speak()</code></td>
+<td>Private variables <code>__balance</code></td>
+</tr>
+<tr>
+<td><strong>Key Concept</strong></td>
+<td>"is-a" relationship</td>
+<td>Method overriding / operator overloading</td>
+<td>Data hiding / getter &amp; setter</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>What is inheritance?</strong>
+    Inheritance allows a class to derive properties and methods from another class. It promotes code reuse and hierarchy.</p>
+</li>
+<li>
+<p><strong>What is polymorphism?</strong>
+    Polymorphism allows different objects to respond to the same method call in different ways. It includes method overriding and operator overloading.</p>
+</li>
+<li>
+<p><strong>What is encapsulation?</strong>
+    Encapsulation hides internal object details using private variables. Access is provided via getter/setter methods.</p>
+<table>
+<thead>
+<tr>
+<th>Access Type</th>
+<th>Prefix</th>
+<th>Accessible From</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public</td>
+<td>None</td>
+<td>Anywhere</td>
+<td>No restriction</td>
+</tr>
+<tr>
+<td>Protected/Semi-Private</td>
+<td><code>_</code></td>
+<td>Class &amp; Subclasses</td>
+<td>Discouraged from outside</td>
+</tr>
+<tr>
+<td>Private</td>
+<td><code>__</code></td>
+<td>Class only (name-mangled)</td>
+<td>Full encapsulation</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>Difference between class variable and instance variable?</strong>
+    Class variables are shared across instances; instance variables are unique per object. Both are used for storing data in classes.</p>
+</li>
+<li>
+<p><strong>What is <code>super()</code>?</strong>
+    <code>super()</code> allows calling parent class methods from a child class. It is commonly used in constructors to initialize inherited attributes.</p>
+</li>
+<li>
+<p><strong>What are decorators?</strong>
+    Decorators modify the behavior of a function or class without changing its code. They are commonly used for logging, validation, or access control.</p>
+</li>
+<li>
+<p><strong>How to read and write files?</strong>
+    Use <code>with open('file.txt', 'r') as f:</code> to read and <code>with open('file.txt', 'w') as f:</code> to write. <code>with</code> ensures files are properly closed.</p>
+</li>
+<li>
+<p><strong>Difference between <code>read()</code>, <code>readline()</code>, <code>readlines()</code>?</strong>
+    <code>read()</code> reads the entire file, <code>readline()</code> reads one line, <code>readlines()</code> returns a list of lines. Use based on memory and processing needs.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>What it does</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read()</code></td>
+<td>Reads the <strong>entire file</strong> as a string</td>
+<td>Small files where you need all content</td>
+</tr>
+<tr>
+<td><code>readline()</code></td>
+<td>Reads <strong>one line at a time</strong></td>
+<td>Large files, line-by-line processing</td>
+</tr>
+<tr>
+<td><code>readlines()</code></td>
+<td>Reads <strong>all lines into a list</strong></td>
+<td>Need to iterate over lines multiple times</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>Difference between <code>import module</code> and <code>from module import function</code>?</strong>
+    <code>import module</code> requires prefixing with <code>module.func()</code>, <code>from module import func</code> allows direct access to <code>func()</code>.</p>
+</li>
+<li>
+<p><strong>What is <code>__name__ == "__main__"</code>?</strong>
+    It checks whether the script is executed directly or imported as a module. Code under this runs only when the file is executed directly.</p>
+</li>
+<li>
+<p><strong>How to handle exceptions?</strong>
+    Use <code>try-except</code> blocks to catch errors. Example:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">try</span><span class="p">:</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">0</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot divide by zero&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Difference between <code>finally</code> and <code>else</code> in try-except?</strong>
+    <code>finally</code> executes always, regardless of errors. <code>else</code> executes only if no exception occurs.</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Runs When</th>
+<th>Common Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>else</code></td>
+<td>Only if <strong>no exception</strong></td>
+<td>Code that depends on success</td>
+</tr>
+<tr>
+<td><code>finally</code></td>
+<td><strong>Always</strong>, whether success or failure</td>
+<td>Cleanup tasks (close file, disconnect DB)</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<hr />
+<h2 id="advanced-advanced-oop-iterators-generators-concurrency-modules"><strong>Advanced (Advanced OOP, Iterators, Generators, Concurrency, Modules)</strong><a class="headerlink" href="#advanced-advanced-oop-iterators-generators-concurrency-modules" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>What is Python GIL?</strong>
+    The Global Interpreter Lock allows only one thread to execute Python bytecode at a time. It limits CPU-bound multi-threading.</p>
+<div class="codehilite"><pre><span></span><code>Why does Python have the GIL?
+
+Because of memory management.
+Python uses a feature called reference counting to track how many objects are in use.
+To keep this system safe in multi-threaded programs, the GIL ensures only one thread modifies memory at a time — preventing data corruption.
+</code></pre></div>
+
+</li>
+<li>
+<p><strong>Difference between multithreading and multiprocessing?</strong>
+    Threading runs multiple threads in shared memory, limited by GIL. Multiprocessing uses separate processes for true parallelism.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Multithreading</th>
+<th>Multiprocessing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parallelism</td>
+<td>Limited by GIL (CPU-bound)</td>
+<td>True parallelism</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Shared memory</td>
+<td>Separate memory</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>I/O-bound tasks</td>
+<td>CPU-bound tasks</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>How it runs</th>
+<th>Expected Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sequential</strong></td>
+<td>Tasks run <strong>one by one</strong></td>
+<td>Longest time (roughly 4× single task time)</td>
+</tr>
+<tr>
+<td><strong>Threading</strong></td>
+<td>Tasks run in <strong>threads</strong> (GIL restricts CPU-bound tasks)</td>
+<td>Slightly faster than sequential, but not by much</td>
+</tr>
+<tr>
+<td><strong>Multiprocessing</strong></td>
+<td>Tasks run in <strong>separate processes</strong></td>
+<td><strong>True parallelism</strong>, fastest on multi-core CPU</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>What is a generator?</strong>
+    A generator is an iterator that yields values one at a time using <code>yield</code>. It is memory-efficient for large datasets.</p>
+</li>
+<li>
+<p><strong>Difference between <code>yield</code> and <code>return</code>?</strong>
+    <code>return</code> sends a value and exits the function. <code>yield</code> sends a value but pauses function execution, resuming later.</p>
+</li>
+<li>
+<p><strong>What are iterators?</strong>
+    Iterators implement <code>__iter__()</code> and <code>__next__()</code> methods to traverse collections. Generators are a special kind of iterator.</p>
+</li>
+<li>
+<p><strong>Difference between deep copy and shallow copy?</strong>
+    Shallow copy copies the object structure but references nested objects. Deep copy duplicates the object and all nested elements independently.</p>
+</li>
+<li>
+<p><strong>What is a context manager (<code>with</code> statement)?</strong>
+    <code>with</code> ensures resources are properly managed (like files). It automatically closes files or releases resources after use.</p>
+</li>
+<li>
+<p><strong>What are comprehensions?</strong>
+    Python comprehensions provide concise syntax to create lists, sets, and dictionaries. Example: <code>[x**2 for x in range(5)]</code>.</p>
+</li>
+<li>
+<p><strong>Difference between <code>is</code> and <code>==</code>?</strong>
+    <code>is</code> checks if two objects are identical in memory, <code>==</code> checks if values are equal. Use <code>is</code> for object identity.</p>
+</li>
+<li>
+<p><strong>Difference between <code>del</code> and <code>remove()</code>?</strong>
+    <code>del lst[0]</code> deletes by index, <code>lst.remove(val)</code> deletes by value. <code>del</code> can also remove variables entirely.</p>
+</li>
+<li>
+<p><strong>What is a Python module?</strong>
+    A module is a file containing Python code (functions, classes, variables) that can be reused in other programs. Modules improve code organization.</p>
+</li>
+<li>
+<p><strong>What is a package?</strong>
+    A package is a collection of modules organized in directories with <code>__init__.py</code>. Packages allow modular project structures.</p>
+</li>
+<li>
+<p><strong>Popular Python libraries for data?</strong>
+    <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, <code>seaborn</code>, <code>scikit-learn</code>, <code>requests</code>, <code>json</code>. They cover computation, visualization, and web access.</p>
+</li>
+<li>
+<p><strong>Difference between Python array and list?</strong>
+    Lists can hold mixed data types; arrays (from <code>array</code> module or <code>numpy</code>) hold elements of the same type and are more memory efficient.</p>
+</li>
+<li>
+<p><strong>How to manage dependencies in Python?</strong>
+    Use <code>pip</code> for installing packages, and <code>requirements.txt</code> to track dependencies. Virtual environments isolate project packages.</p>
+</li>
+<li>
+<p><strong>What is Python’s <code>itertools</code> module?</strong>
+    <code>itertools</code> provides efficient iterators for combinations, permutations, and Cartesian products. Useful for algorithmic tasks.</p>
+</li>
+<li>
+<p><strong>What is Python’s <code>functools</code> module?</strong>
+    <code>functools</code> provides higher-order functions like <code>reduce()</code>, <code>partial()</code>, and decorators. It simplifies functional programming tasks.</p>
+</li>
+<li>
+<p><strong>How to profile Python code?</strong>
+    Use the <code>cProfile</code> module to measure execution time and function calls. Profiling identifies performance bottlenecks.</p>
+</li>
+<li>
+<p><strong>What is monkey patching?</strong>
+    Monkey patching modifies or extends modules/classes at runtime. It can fix bugs or add features without modifying original code.</p>
+</li>
+<li>
+<p><strong>Difference between Python threads and asyncio?</strong>
+    Threads run concurrently with shared memory but limited by GIL. <code>asyncio</code> uses cooperative multitasking with <code>async/await</code> for I/O-bound tasks.</p>
+</li>
+</ol>
+<hr />
+<p>This <strong>categorization makes it easier</strong> to target questions based on skill level:</p>
+<ul>
+<li><strong>Beginner:</strong> Basics, data types, loops, functions</li>
+<li><strong>Intermediate:</strong> OOP, file handling, error handling, modules</li>
+<li><strong>Advanced:</strong> Iterators, generators, concurrency, performance, advanced OOP</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
