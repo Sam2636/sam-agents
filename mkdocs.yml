@@ -52,11 +52,11 @@ nav:
           - Sliding-window: sliding-window.md
   - TCS-ion:
       - TCS-ion-logical-reasoning: 
-          - TCS-ion-logical-reasoning-1: TCS-ion-logical-reasoning-1.md
-          - TCS-ion-logical-reasoning-2: TCS-ion-logical-reasoning-2.md
-          - TCS-ion-logical-reasoning-3: TCS-ion-logical-reasoning-3.md
-          - TCS-ion-logical-reasoning-4: TCS-ion-logical-reasoning-4.md
-          - TCS-ion-logical-reasoning-5: TCS-ion-logical-reasoning-5.md
+          - TCS-ion-logical-reasoning-1: Logical-reasoning-batch1.md
+          - TCS-ion-logical-reasoning-2: Logical-reasoning-batch2.md
+          - TCS-ion-logical-reasoning-3: Logical-reasoning-batch3.md
+          - TCS-ion-logical-reasoning-4: Logical-reasoning-batch4.md
+          - TCS-ion-logical-reasoning-5: Logical-reasoning-batch5.md
 
 plugins:
   - search
