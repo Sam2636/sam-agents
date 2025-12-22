@@ -58,6 +58,19 @@ nav:
           - TCS-ion-logical-reasoning-3: Logical-reasoning-batch3.md
           - TCS-ion-logical-reasoning-4: Logical-reasoning-batch4.md
           - TCS-ion-logical-reasoning-5: Logical-reasoning-batch5.md
+      - TCS-ion-math:
+          - TCS-ion-math-1: Math-batch1.md
+          - TCS-ion-math-2: Math-batch2.md
+          - TCS-ion-math-3: Math-batch3.md
+          - TCS-ion-math-4: Math-batch4.md
+      - TCS-ion-verbal:
+          - TCS-ion-verbal-1: Verbal-reasoning-batch1.md
+          - TCS-ion-verbal-2: Verbal-reasoning-batch2.md
+          - TCS-ion-verbal-3: Verbal-reasoning-batch3.md
+          - TCS-ion-verbal-4: Verbal-reasoning-batch4.md
+      - TCS-ion-coding:
+          - TCS-ion-coding-1: coding-batch1.md
+
 
 plugins:
   - search
