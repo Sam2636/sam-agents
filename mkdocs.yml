@@ -50,6 +50,13 @@ nav:
           - Two-pointer: Two-pointer.md
           - Slow-fast-pointer: slow&fast-pointer.md
           - Sliding-window: sliding-window.md
+  - TCS-ion:
+      - TCS-ion-logical-reasoning: 
+          - TCS-ion-logical-reasoning-1: TCS-ion-logical-reasoning-1.md
+          - TCS-ion-logical-reasoning-2: TCS-ion-logical-reasoning-2.md
+          - TCS-ion-logical-reasoning-3: TCS-ion-logical-reasoning-3.md
+          - TCS-ion-logical-reasoning-4: TCS-ion-logical-reasoning-4.md
+          - TCS-ion-logical-reasoning-5: TCS-ion-logical-reasoning-5.md
 
 plugins:
   - search
