@@ -1,0 +1,39 @@
+{
+  "layer": {
+    "id": "CDP",
+    "name": "Customer Data Platform"
+  },
+  "tables": [
+    {
+      "id": "CDP_FACT_CUSTOMER_DAILY",
+      "type": "FACT",
+      "columns": [
+        { "name": "DATE_ID", "datatype": "DATE", "is_pk": true },
+        { "name": "CUSTOMER_ID", "datatype": "STRING", "is_pk": true },
+        { "name": "ACCOUNT_ID", "datatype": "STRING", "is_pk": true },
+        { "name": "TOTAL_TXNS", "datatype": "NUMBER" },
+        { "name": "TOTAL_SPEND", "datatype": "NUMBER(18,2)" },
+        { "name": "TRANSPORT_SPEND", "datatype": "NUMBER(18,2)" },
+        { "name": "CURRENT_BALANCE", "datatype": "NUMBER(18,2)" }
+      ],
+      "relationships": [
+        { "type": "JOINS_TO", "target": "DIM_CUSTOMER" },
+        { "type": "JOINS_TO", "target": "DIM_ACCOUNT" },
+        { "type": "JOINS_TO", "target": "DIM_DATE" },
+        { "type": "JOINS_TO", "target": "DIM_TRANSPORT" }
+      ]
+    },
+    {
+      "id": "DIM_CUSTOMER",
+      "type": "DIMENSION",
+      "columns": [
+        { "name": "CUSTOMER_ID", "datatype": "STRING", "is_pk": true },
+        { "name": "CUSTOMER_NAME", "datatype": "STRING" },
+        { "name": "CUSTOMER_TYPE", "datatype": "STRING" },
+        { "name": "CITY", "datatype": "STRING" },
+        { "name": "STATE", "datatype": "STRING" },
+        { "name": "COUNTRY", "datatype": "STRING" }
+      ]
+    }
+  ]
+}

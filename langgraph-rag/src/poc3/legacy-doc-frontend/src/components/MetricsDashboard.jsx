@@ -1,45 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { fetchMetrics } from "../services/api";
+import { fetchGraphMetrics } from "../services/api";
 
 export default function MetricsDashboard() {
-  const [metrics, setMetrics] = useState({ folders: 0, files: 0, tokens: 0 });
+  const [metrics, setMetrics] = useState({
+    layers: [],
+    summary: {
+      layers: 0,
+      tables: 0,
+      versions: 0,
+      columns: 0,
+    },
+  });
 
   useEffect(() => {
-    let isMounted = true;
-    let intervalId = null;
-
-    const getMetrics = async () => {
+    const loadMetrics = async () => {
       try {
-        const res = await fetchMetrics();
-        if (isMounted) {
-          setMetrics({
-            folders: res.data.folders_processed,
-            files: res.data.files_processed,
-            tokens: res.data.tokens_used,
-          });
-          // console.log("Fetched metrics:", res.data);
-        }
+        const res = await fetchGraphMetrics();
+        console.log("Graph Metrics API:", res.data);
+        setMetrics(res.data);
       } catch (err) {
-        // console.error("Metrics fetch failed:", err);
-        // Optional: Set an error state or show a notification
+        console.error("Graph metrics fetch failed", err);
       }
     };
 
-    getMetrics();
-    intervalId = setInterval(getMetrics, 5000); // Increased interval to 5s
-
-    return () => {
-      isMounted = false;
-      if (intervalId) clearInterval(intervalId);
-    };
+    loadMetrics();
+    const id = setInterval(loadMetrics, 5000);
+    return () => clearInterval(id);
   }, []);
 
   return (
     <div>
-      <h3>Progress</h3>
-      <p>Folders Processed: {metrics.folders}</p>
-      <p>Files Processed: {metrics.files}</p>
-      <p>Tokens Used: {metrics.tokens}</p>
+      <h3>Neo4j Graph Metrics</h3>
+
+      <h4>Summary</h4>
+      <p>Total Layers: {metrics.summary.layers}</p>
+      <p>Total Tables: {metrics.summary.tables}</p>
+      <p>Total Versions: {metrics.summary.versions}</p>
+      <p>Total Columns: {metrics.summary.columns}</p>
+
+      <h4>Layer Details</h4>
+      {metrics.layers.map((l) => (
+        <div key={l.layer} style={{ marginBottom: "10px" }}>
+          <strong>{l.layer}</strong>
+          <p>Tables: {l.tables}</p>
+          <p>Versions: {l.versions}</p>
+          <p>Columns: {l.columns}</p>
+        </div>
+      ))}
     </div>
   );
 }

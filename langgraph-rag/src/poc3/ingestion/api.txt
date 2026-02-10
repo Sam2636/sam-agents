@@ -1,0 +1,61 @@
+http://localhost:8000/metadata/table -->POST
+
+JSON-->ODP/FDP/CDP
+{
+  "layer": "CDP",
+  "schema": "analytics",
+  "name": "orders_summary",
+  "type": "AGGREGATE",
+  "version": 1,
+  "columns": [
+    {
+      "name": "customer_id",
+      "datatype": "INT",
+      "is_pk": true,
+      "is_fk": false
+    },
+    {
+      "name": "total_orders",
+      "datatype": "INT",
+      "is_pk": false,
+      "is_fk": false
+    },
+    {
+      "name": "total_amount",
+      "datatype": "DECIMAL",
+      "is_pk": false,
+      "is_fk": false
+    }
+  ]
+}
+
+http://localhost:8000/metadata/lineage/table --> tabel lineage
+
+JSON-->
+{
+  "source_version": "FDP.sales.orders_enriched.v1",
+  "target_version": "CDP.analytics.orders_summary.v1"
+}
+
+
+http://localhost:8000/metadata/lineage/column  --> column lineage
+
+JSON -->
+{
+  "source_version": "FDP.sales.orders_enriched.v1.customer_id",
+  "target_version": "CDP.analytics.orders_summary.v1.customer_id"
+}
+
+
+http://localhost:8000/metadata/lineage/fk  --> fk lineage
+
+JSON -->
+
+{
+  "src": "FDP.sales.orders_enriched.v1.customer_id",
+  "tgt": "FDP.sales.customers.v1.customer_id"
+}
+
+------------------
+e-n-v-p--
+env-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

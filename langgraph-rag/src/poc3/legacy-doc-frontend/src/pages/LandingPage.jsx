@@ -40,7 +40,7 @@ export default function LandingPage() {
       >
         <Stack spacing={4} alignItems="center">
           <Typography variant="h2" component="h1" fontWeight="bold" sx={{ textShadow: "0px 4px 20px rgba(0,0,0,0.5)" }}>
-            Transform Legacy Code into Clear Documentation
+            High-Level SQL Generation for Data Processing and Warehousing
           </Typography>
 
           <Typography
@@ -53,28 +53,46 @@ export default function LandingPage() {
               opacity: 0.9
             }}
           >
-            AI-powered analysis to understand, document, and modernize your codebase.
-            Upload your project or point to a repository to get started.
+            Generate production-ready SQL from lineage, metadata, and business
+            intent. Accelerate ETL design, governance, and warehouse
+            optimization with an AI copiloting workflow.
           </Typography>
 
 
-          <Button
-            variant="contained"
-            size="large"
-            onClick={() => navigate("/app")}
-            sx={{
-              mt: 4,
-              px: 6,
-              py: 2,
-              fontSize: "1.2rem",
-              borderRadius: "50px",
-              textTransform: "none",
-              background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-              boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-            }}
-          >
-            Get Started
-          </Button>
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 1 }}>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        onClick={() => navigate("/sql")}
+                        sx={{
+                          px: 6,
+                          py: 2,
+                          fontSize: "1.1rem",
+                          borderRadius: "50px",
+                          textTransform: "none",
+                          background: "linear-gradient(90deg, #00c6ff 0%, #00ffb2 100%)",
+                          boxShadow: "0 10px 30px rgba(0, 255, 200, 0.25)"
+                        }}
+                      >
+                        Launch SQL Studio
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        onClick={() => navigate("/app")}
+                        sx={{
+                          px: 6,
+                          py: 2,
+                          fontSize: "1.1rem",
+                          borderRadius: "50px",
+                          textTransform: "none",
+                          borderColor: "rgba(255,255,255,0.5)",
+                          color: "#e7f6ff"
+                        }}
+                      >
+                        Open Platform
+                      </Button>
+                    </Box>
         </Stack>
       </Container>
     </div>

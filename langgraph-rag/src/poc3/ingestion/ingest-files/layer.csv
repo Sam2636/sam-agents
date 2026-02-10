@@ -1,0 +1,4 @@
+layer_id,layer_name,description
+1,ODP,Operational Data Layer - Raw Ingested Data
+2,FDP,Functional Data Layer - Business Logic Applied
+3,CDP,Consumer Data Layer - Analytics & Reporting

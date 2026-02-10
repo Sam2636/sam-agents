@@ -26,3 +26,10 @@ export const fetchMetrics = () => {
 export const fetchMarkdown = (sessionId) => {
   return axios.get(`${API_BASE}/markdown/${sessionId}`);
 };
+
+export const fetchGraphMetrics = () =>
+  axios.get("http://localhost:8000/metadata/graph/metrics");
+
+export const fetchVisualGraph = () =>
+  fetch("http://localhost:8000/metadata/graph/visual")
+    .then(res => res.json());
