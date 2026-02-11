@@ -1,0 +1,4 @@
+layer,schema,table_name,table_type,table_version,column_name,datatype,business_description,transformation_logic,source_tables,source_columns
+CDP,analytics,orders_summary,AGGREGATE,1,customer_id,INT,Unique identifier of the customer,Derived directly from orders table without transformation,orders,customer_id
+CDP,analytics,orders_summary,AGGREGATE,1,total_orders,INT,Total number of orders placed by a customer,Calculated as COUNT(order_id) grouped by customer_id,orders,order_id
+CDP,analytics,orders_summary,AGGREGATE,1,total_amount,DECIMAL,Total monetary value of all orders placed by a customer,Calculated as SUM(order_amount) grouped by customer_id,orders,order_amount
