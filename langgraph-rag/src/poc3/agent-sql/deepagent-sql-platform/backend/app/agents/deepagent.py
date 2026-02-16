@@ -120,7 +120,7 @@ def get_database_schema(table_name: str):
 llm = ChatOpenAI(
     model="gpt-4o-mini",
     temperature=0,
-    api_key="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",
+    api_key=KEY,
 )
 
 tools = [create_document, edit_file, process_sql_generation, get_database_schema]
