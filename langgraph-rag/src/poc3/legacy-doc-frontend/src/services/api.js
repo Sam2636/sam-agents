@@ -33,3 +33,24 @@ export const fetchGraphMetrics = () =>
 export const fetchVisualGraph = () =>
   fetch("http://localhost:8000/metadata/graph/visual")
     .then(res => res.json());
+
+export const fetchCanvasLineageGraph = () =>
+  fetch("http://localhost:8000/metadata/graph/canvas")
+    .then((res) => {
+      if (!res.ok) throw new Error(`Canvas API error: ${res.status}`);
+      return res.json();
+    });
+
+export const fetchTableCanvasLineage = () =>
+  fetch("http://localhost:8000/metadata/canvas")
+    .then((res) => {
+      if (!res.ok) throw new Error(`Table canvas API error: ${res.status}`);
+      return res.json();
+    });
+
+export const fetchColumnCanvasLineage = () =>
+  fetch("http://localhost:8000/metadata/columns")
+    .then((res) => {
+      if (!res.ok) throw new Error(`Column canvas API error: ${res.status}`);
+      return res.json();
+    });

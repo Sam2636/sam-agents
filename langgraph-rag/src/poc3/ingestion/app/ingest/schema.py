@@ -330,3 +330,84 @@ def graph_visual():
         "nodes": list(nodes.values()),
         "edges": edges
     }
+
+@router.get("/graph/canvas")
+def canvas_graph():
+    return {
+        "layers": ["ODP", "FDP", "CDP"],
+        "nodes": [
+            {"id": "o1", "label": "raw_customers", "layer": "ODP"},
+            {"id": "f1", "label": "dim_customers", "layer": "FDP"},
+            {"id": "c1", "label": "agg_customer_360", "layer": "CDP"}
+        ],
+        "edges": [
+            {"from": "o1", "to": "f1"},
+            {"from": "f1", "to": "c1"}
+        ]
+    }
+
+MOCK_TABLES = [
+    {"id": "o1", "name": "raw_customers", "layer": "ODP", "schema": "raw", "columns": 14, "rows": 45230},
+    {"id": "o2", "name": "raw_orders", "layer": "ODP", "schema": "raw", "columns": 9, "rows": 128740},
+    {"id": "o3", "name": "raw_products", "layer": "ODP", "schema": "raw", "columns": 11, "rows": 3200},
+    {"id": "o4", "name": "raw_events", "layer": "ODP", "schema": "raw", "columns": 7, "rows": 892100},
+    {"id": "f1", "name": "dim_customers", "layer": "FDP", "schema": "curated", "columns": 18, "rows": 44900},
+    {"id": "f2", "name": "fact_orders", "layer": "FDP", "schema": "curated", "columns": 22, "rows": 127500},
+    {"id": "f3", "name": "dim_products", "layer": "FDP", "schema": "curated", "columns": 15, "rows": 3180},
+    {"id": "c1", "name": "agg_customer_360", "layer": "CDP", "schema": "analytics", "columns": 32, "rows": 44900},
+    {"id": "c2", "name": "agg_revenue", "layer": "CDP", "schema": "analytics", "columns": 12, "rows": 365},
+    {"id": "c3", "name": "agg_product_perf", "layer": "CDP", "schema": "analytics", "columns": 16, "rows": 3180},
+]
+
+MOCK_EDGES = [
+    ["o1", "f1"],
+    ["o2", "f2"],
+    ["o3", "f3"],
+    ["o4", "f2"],
+    ["o1", "f2"],
+    ["f1", "c1"],
+    ["f2", "c1"],
+    ["f2", "c2"],
+    ["f3", "c3"],
+    ["f1", "c2"],
+]
+
+@router.get("/canvas")
+def get_lineage_canvas():
+    return {
+        "tables": MOCK_TABLES,
+        "edges": MOCK_EDGES
+    }
+
+MOCK_COLUMNS = [
+    {"id": "oc1", "column": "customer_id", "table": "raw_customers", "layer": "ODP", "type": "INT"},
+    {"id": "oc2", "column": "full_name", "table": "raw_customers", "layer": "ODP", "type": "VARCHAR"},
+    {"id": "oc3", "column": "email", "table": "raw_customers", "layer": "ODP", "type": "VARCHAR"},
+    {"id": "oc4", "column": "order_id", "table": "raw_orders", "layer": "ODP", "type": "INT"},
+    {"id": "oc5", "column": "customer_ref", "table": "raw_orders", "layer": "ODP", "type": "INT"},
+    {"id": "oc6", "column": "amount", "table": "raw_orders", "layer": "ODP", "type": "DECIMAL"},
+    {"id": "fc1", "column": "customer_key", "table": "dim_customers", "layer": "FDP", "type": "INT"},
+    {"id": "fc2", "column": "customer_name", "table": "dim_customers", "layer": "FDP", "type": "VARCHAR"},
+    {"id": "fc3", "column": "contact_email", "table": "dim_customers", "layer": "FDP", "type": "VARCHAR"},
+    {"id": "fc4", "column": "order_key", "table": "fact_orders", "layer": "FDP", "type": "INT"},
+    {"id": "fc5", "column": "cust_fk", "table": "fact_orders", "layer": "FDP", "type": "INT"},
+    {"id": "fc6", "column": "order_amount", "table": "fact_orders", "layer": "FDP", "type": "DECIMAL"},
+    {"id": "cc1", "column": "customer_id", "table": "agg_customer_360", "layer": "CDP", "type": "INT"},
+    {"id": "cc2", "column": "name", "table": "agg_customer_360", "layer": "CDP", "type": "VARCHAR"},
+    {"id": "cc3", "column": "total_spend", "table": "agg_customer_360", "layer": "CDP", "type": "DECIMAL"},
+    {"id": "cc4", "column": "email", "table": "agg_customer_360", "layer": "CDP", "type": "VARCHAR"},
+]
+
+MOCK_COL_EDGES = [
+    ["oc1", "fc1"], ["oc2", "fc2"], ["oc3", "fc3"],
+    ["oc4", "fc4"], ["oc5", "fc5"], ["oc6", "fc6"],
+    ["fc1", "cc1"], ["fc2", "cc2"], ["fc6", "cc3"],
+    ["fc3", "cc4"], ["fc5", "cc1"]
+]
+
+@router.get("/columns")
+def get_column_lineage():
+    return {
+        "columns": MOCK_COLUMNS,
+        "edges": MOCK_COL_EDGES
+    }

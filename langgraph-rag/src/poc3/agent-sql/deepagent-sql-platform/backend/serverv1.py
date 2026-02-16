@@ -1,90 +1,54 @@
-# from mcp.server.fastmcp import FastMCP
-
-# mcp = FastMCP("My MCP Server")
-
-# @mcp.tool()
-# def say_hello(name: str) -> str:
-#     return f"Hello, {name} from MCP!"
-
-# @mcp.tool()
-# def add(a: int, b: int) -> int:
-#     return a + b
-
-# @mcp.tool()
-# def multiply(a: int, b: int) -> int:
-#     return a * b
-
-# if __name__ == "__main__":
-#     mcp.run(transport="stdio")  # defaults to HTTP transport on 127.0.0.1:8000
-
-# from mcp.server.fastmcp import FastMCP
-
-# mcp = FastMCP("My MCP Server")
-
-# @mcp.tool()
-# def say_hello(name: str) -> str:
-#     return f"Hello, {name} from MCP!"
-
-# @mcp.tool()
-# def add(a: int, b: int) -> int:
-#     return a + b
-
-# @mcp.tool()
-# def multiply(a: int, b: int) -> int:
-#     return a * b
-
-# if __name__ == "__main__":
-#     mcp.run(transport="http", host="127.0.0.1", port=8000)  # <-- HTTP transport
-
 import os
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from mcp.server.fastmcp import FastMCP
 
 # ------------------ LOAD ENV ------------------
-
 load_dotenv()
 
-NEO4J_URI = os.getenv("NEO4J_URI")
-NEO4J_USER = os.getenv("NEO4J_USER")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "12345678")
 
 # ------------------ INIT MCP ------------------
-
-mcp = FastMCP("mcp", host="0.0.0.0", port=8002)
-
+# Note: Host and port are passed to mcp.run(), not the constructor
+mcp = FastMCP("Neo4j-MCP-Server", host="0.0.0.0", port=8002)
 # ------------------ INIT NEO4J DRIVER ------------------
-print(f"Connecting to Neo4j at {NEO4J_URI} with user {NEO4J_USER}")
 driver = GraphDatabase.driver(
-    NEO4J_URI,
+    NEO4J_URI, 
     auth=(NEO4J_USER, NEO4J_PASSWORD)
 )
 
-# ------------------ SECURITY ------------------
-
+# ------------------ SECURITY & UTILS ------------------
 FORBIDDEN = ["CREATE", "MERGE", "DELETE", "SET", "DROP", "REMOVE"]
+
+def test_connection():
+    try:
+        driver.verify_connectivity()
+        print("✅ Neo4j Connection Verified")
+    except Exception as e:
+        print(f"❌ Neo4j Connection Failed: {e}")
+        exit(1) # Stop the server immediately if auth fails
 
 def validate_read_only(query: str):
     upper = query.upper()
-
     for keyword in FORBIDDEN:
         if keyword in upper:
             raise ValueError(f"Forbidden operation detected: {keyword}")
-
-    if "MATCH" not in upper:
-        raise ValueError("Only MATCH queries are allowed.")
-
-def run_cypher(query: str):
-    with driver.session() as session:
-        result = session.run(query)
-        return [record.data() for record in result]
+    
+    # Simple check to ensure it's a retrieval query
+    if "MATCH" not in upper and "RETURN" not in upper:
+        raise ValueError("Only MATCH or RETURN queries are allowed.")
 
 # ------------------ MCP TOOLS ------------------
 
 @mcp.tool()
 def execute_cypher(query: str) -> list:
+    """Executes a read-only Cypher query against Neo4j."""
     validate_read_only(query)
-    return run_cypher(query)
+    with driver.session() as session:
+        result = session.run(query)
+        return [record.data() for record in result]
 
 @mcp.tool()
 def get_table_schema(table_name: str) -> dict:
@@ -116,8 +80,15 @@ def get_table_schema(table_name: str) -> dict:
         if not record:
             return {"error": f"Active table version for '{table_name}' not found."}
         return record.data()
-
 # ------------------ RUN SERVER ------------------
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    # Use "sse" for HTTP-based transport. 
+    # This will start a Starlette/FastAPI-style server.
+    try:
+        test_connection()
+        mcp.run(
+            transport="sse"
+        )
+    finally:
+        driver.close()

@@ -20,7 +20,8 @@ import {
 import { Link } from "react-router-dom";
 import MetadataIngestDialog from "../components/MetadataIngestDialog";
 import LineageGraph from "../components/LineageGraph";
-import MetadataIngestPanel from "../components/MetadataIngestPanel";
+import LineageGraphPlaceholder from "../components/LineageGraphPlaceholder";
+import MetricCard from "../components/MetricCard";
 import { fetchGraphMetrics } from "../services/api";
 
 export default function MainPage() {
@@ -128,6 +129,14 @@ export default function MainPage() {
               >
                 SQL Generation
               </Button>
+              <Button
+                component={Link}
+                to="/lineage/tables"
+                variant="outlined"
+                color="primary"
+              >
+                Table Lineage
+              </Button>
 
                <Button
                   variant="contained"
@@ -151,7 +160,10 @@ export default function MainPage() {
                   py: 1,
                   borderRadius: 999,
                   bgcolor: "background.paper",
-                  boxShadow: 3
+                  border: "1px solid",
+                  borderColor:
+                    mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)",
+                  boxShadow: mode === "dark" ? "0 8px 16px rgba(0,0,0,0.28)" : "0 3px 10px rgba(15,23,42,0.08)"
                 }}
               >
                 <Typography sx={{ fontWeight: 600 }}>
@@ -177,138 +189,57 @@ export default function MainPage() {
                 gap: 2
               }}
             >
-              <Paper
-                elevation={6}
-                sx={{
-                  p: 2.5,
-                  backdropFilter: "blur(10px)",
-                  background:
-                    mode === "dark"
-                      ? "linear-gradient(135deg, rgba(30,215,96,0.18), rgba(11,95,255,0.12))"
-                      : "linear-gradient(135deg, rgba(11,95,255,0.18), rgba(30,215,96,0.12))",
-                  border: "1px solid",
-                  borderColor:
-                    mode === "dark"
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(0,0,0,0.08)"
-                }}
-              >
-                <Typography sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-                  Summary
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography sx={{ color: "text.secondary" }}>
-                  Total Layers: {metrics.summary.layers}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Total Tables: {metrics.summary.tables}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Total Versions: {metrics.summary.versions}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Total Columns: {metrics.summary.columns}
-                </Typography>
-              </Paper>
+              <MetricCard
+                title="Summary"
+                index={0}
+                metrics={[
+                  { label: "Total Layers", value: metrics.summary.layers },
+                  { label: "Total Tables", value: metrics.summary.tables },
+                  { label: "Total Versions", value: metrics.summary.versions },
+                  { label: "Total Columns", value: metrics.summary.columns }
+                ]}
+              />
 
-              <Paper
-                elevation={6}
-                sx={{
-                  p: 2.5,
-                  backdropFilter: "blur(10px)",
-                  background:
-                    mode === "dark"
-                      ? "linear-gradient(135deg, rgba(11,95,255,0.18), rgba(30,215,96,0.12))"
-                      : "linear-gradient(135deg, rgba(30,215,96,0.18), rgba(11,95,255,0.12))",
-                  border: "1px solid",
-                  borderColor:
-                    mode === "dark"
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(0,0,0,0.08)"
-                }}
-              >
-                <Typography sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-                  ODP
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography sx={{ color: "text.secondary" }}>
-                  Tables: {odp.tables}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Versions: {odp.versions}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Columns: {odp.columns}
-                </Typography>
-              </Paper>
+              <MetricCard
+                title="ODP"
+                index={1}
+                metrics={[
+                  { label: "Tables", value: odp.tables },
+                  { label: "Versions", value: odp.versions },
+                  { label: "Columns", value: odp.columns }
+                ]}
+              />
 
-              <Paper
-                elevation={6}
-                sx={{
-                  p: 2.5,
-                  backdropFilter: "blur(10px)",
-                  background:
-                    mode === "dark"
-                      ? "linear-gradient(135deg, rgba(30,215,96,0.18), rgba(11,95,255,0.12))"
-                      : "linear-gradient(135deg, rgba(11,95,255,0.18), rgba(30,215,96,0.12))",
-                  border: "1px solid",
-                  borderColor:
-                    mode === "dark"
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(0,0,0,0.08)"
-                }}
-              >
-                <Typography sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-                  FDP
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography sx={{ color: "text.secondary" }}>
-                  Tables: {fdp.tables}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Versions: {fdp.versions}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Columns: {fdp.columns}
-                </Typography>
-              </Paper>
+              <MetricCard
+                title="FDP"
+                index={2}
+                metrics={[
+                  { label: "Tables", value: fdp.tables },
+                  { label: "Versions", value: fdp.versions },
+                  { label: "Columns", value: fdp.columns }
+                ]}
+              />
 
-              <Paper
-                elevation={6}
-                sx={{
-                  p: 2.5,
-                  backdropFilter: "blur(10px)",
-                  background:
-                    mode === "dark"
-                      ? "linear-gradient(135deg, rgba(11,95,255,0.18), rgba(30,215,96,0.12))"
-                      : "linear-gradient(135deg, rgba(30,215,96,0.18), rgba(11,95,255,0.12))",
-                  border: "1px solid",
-                  borderColor:
-                    mode === "dark"
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(0,0,0,0.08)"
-                }}
-              >
-                <Typography sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-                  CDP
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography sx={{ color: "text.secondary" }}>
-                  Tables: {cdp.tables}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Versions: {cdp.versions}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  Columns: {cdp.columns}
-                </Typography>
-              </Paper>
+              <MetricCard
+                title="CDP"
+                index={3}
+                metrics={[
+                  { label: "Tables", value: cdp.tables },
+                  { label: "Versions", value: cdp.versions },
+                  { label: "Columns", value: cdp.columns }
+                ]}
+              />
             </Box>
 
             <Paper
-              elevation={9}
+              elevation={0}
               sx={{
                 p: 2,
+                borderRadius: 2,
+                bgcolor: "background.paper",
+                border: "1px solid",
+                borderColor: mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)",
+                boxShadow: mode === "dark" ? "0 10px 24px rgba(0,0,0,0.35)" : "0 6px 18px rgba(15,23,42,0.08)",
                 height: "75vh",
                 maxHeight: "75vh",
                 display: "flex",
@@ -360,6 +291,50 @@ export default function MainPage() {
 
               <Box sx={{ flex: 1, minHeight: 0, height: "100%" }}>
                 <LineageGraph refresh={refreshGraph} />
+              </Box>
+            </Paper>
+
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: "background.paper",
+                border: "1px solid",
+                borderColor: mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)",
+                boxShadow: mode === "dark" ? "0 10px 24px rgba(0,0,0,0.35)" : "0 6px 18px rgba(15,23,42,0.08)",
+                height: "34vh",
+                minHeight: 260,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 1
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Canvas Lineage Graph
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Refresh />}
+                  onClick={() => setRefreshGraph(p => !p)}
+                >
+                  Refresh
+                </Button>
+              </Box>
+
+              <Divider sx={{ mb: 2 }} />
+
+              <Box sx={{ flex: 1, minHeight: 0, height: "100%" }}>
+                <LineageGraphPlaceholder refresh={refreshGraph} />
               </Box>
             </Paper>
 
