@@ -56,7 +56,7 @@ class AgentState(TypedDict):
 llm = ChatOpenAI(
     model="gpt-4o-mini",
     temperature=0,
-    api_key="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"
+    api_key=key
 )
 
 # =========================================================
