@@ -3,9 +3,14 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
-
+from app.api.chat import _tables_from_session_csv, fetch_table_schema
+from app.memory.session_context import save_context
+import asyncio
+import logging
 from app.config import SESSION_UPLOADS_DIR
-
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+import pandas as pd
 router = APIRouter()
 
 
@@ -16,37 +21,85 @@ def _session_dir(session_id: str) -> Path:
     session_path.mkdir(parents=True, exist_ok=True)
     return session_path
 
-
 @router.post("/upload")
 async def upload_csv_files(files: list[UploadFile] = File(...)):
-    if not files:
-        raise HTTPException(status_code=400, detail="No files provided")
 
-    session_id = uuid4().hex
+    session_id = str(uuid4())
     session_path = _session_dir(session_id)
-    saved_files: list[str] = []
 
-    for upload in files:
-        filename = Path(upload.filename or "").name
-        if not filename:
+    saved_files = []
+
+    for file in files:
+        if not file.filename.endswith(".csv"):
+            raise HTTPException(status_code=400, detail="Only CSV files allowed.")
+
+        destination = session_path / file.filename
+
+        with destination.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        saved_files.append(file.filename)
+
+    # 🔥 BUILD GRAPH CONTEXT
+    tables = _tables_from_session_csv(session_id)
+
+    graph_context = {}
+
+    for table in tables:
+        try:
+            schema_data = await fetch_table_schema(table)
+            logger.info(f"Fetching schema for table: {table}")
+            logger.info(f"Schema returned: {schema_data}")
+
+            if schema_data:
+                graph_context[table] = schema_data
+        except Exception:
             continue
-        if not filename.lower().endswith(".csv"):
-            raise HTTPException(status_code=400, detail=f"Only CSV files are supported: {filename}")
+    
+    # ----------------------------------------
+    # BUILD BUSINESS SPEC FROM CSV
+    # ----------------------------------------
 
-        target = session_path / filename
-        with target.open("wb") as f:
-            shutil.copyfileobj(upload.file, f)
-        saved_files.append(str(target))
+    business_spec = {}
 
-    if not saved_files:
-        raise HTTPException(status_code=400, detail="No valid CSV files were uploaded")
+    session_path = Path(SESSION_UPLOADS_DIR) / session_id
+    csv_files = list(session_path.glob("*.csv"))
+
+    for file_path in csv_files:
+        df = pd.read_csv(file_path)
+
+        grouped = df.groupby(["layer", "schema", "table_name"])
+
+        for (layer, schema, table), group_df in grouped:
+            full_name = f"{layer}.{schema}.{table}"
+
+            business_spec[full_name] = {
+                "type": group_df["table_type"].iloc[0],
+                "source": group_df["source_tables"].iloc[0],
+                "columns": {}
+            }
+
+            for _, row in group_df.iterrows():
+                business_spec[full_name]["columns"][
+                    row["column_name"]
+                ] = row["transformation_logic"]
+
+
+    save_context(session_id, {
+    "source_tables": list(tables),
+    "graph_context": graph_context,
+    "business_spec": business_spec
+    })
+
 
     return {
         "status": "uploaded",
         "session_id": session_id,
         "workspace": str(session_path),
         "files": saved_files,
+        "tables_detected": list(tables)
     }
+
 
 
 @router.get("/session/{session_id}")

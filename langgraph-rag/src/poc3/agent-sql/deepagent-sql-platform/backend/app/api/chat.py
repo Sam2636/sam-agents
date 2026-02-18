@@ -22,7 +22,7 @@ from mcp.client.sse import sse_client
 # ---------------------------------------------------
 # MCP CONFIG
 # ---------------------------------------------------
-MCP_URL = os.getenv("MCP_URL", "http://localhost:8003/sse")
+MCP_URL = os.getenv("MCP_URL", "http://localhost:8002/sse")
 
 import json # Ensure this is imported at the top
 
@@ -93,35 +93,8 @@ def _tables_from_session_csv(session_id: str) -> Set[str]:
 
 @router.post("/")
 async def chat(req: ChatRequest):
-    msg = (req.message or "").lower()
-    asks_all_schema = ("schema" in msg) and ("all" in msg)
-    if asks_all_schema:
-        tables = _tables_from_session_csv(req.session_id)
-        if not tables:
-            return {
-                "status": "completed",
-                "chat_reply": "No tables found in uploaded CSV metadata for this session.",
-                "sql": "",
-                "requires_approval": False,
-            }
-
-        schema_lines = []
-        for table in sorted(tables):
-            schema_data = await fetch_table_schema(table)
-            cols = schema_data.get("columns", []) if isinstance(schema_data, dict) else []
-            if cols:
-                schema_lines.append(f"- {table}: {cols}")
-            else:
-                schema_lines.append(f"- {table}: schema not found from MCP")
-
-        return {
-            "status": "completed",
-            "chat_reply": "Schemas from MCP:\n" + "\n".join(schema_lines),
-            "sql": "",
-            "requires_approval": False,
-        }
-
     return run_agent(req.session_id, req.message)
+
 
 # ---------------------------------------------------
 # Plan Builder (Graph-Enforced)
@@ -183,37 +156,51 @@ async def build_plan_from_session(session_id: str):
                 f"COLUMNS TO GENERATE:\n" + "\n".join(columns_info)
             )
 
-    # 2. VALIDATE SOURCE TABLES
+        # 2. VALIDATE SOURCE TABLES
     if not source_tables:
         raise HTTPException(
             status_code=400,
-            detail="No source tables found in metadata. Cannot validate against Graph Schema."
+            detail="No source tables found in metadata."
         )
 
-    # 3. FETCH MCP GRAPH SCHEMA
-    graph_context_blocks = []
+    # 3. BUILD GRAPH CONTEXT FROM MCP
+    from app.memory.session_context import load_context, save_context
+
+    context_data = load_context(session_id) or {}
+
+    graph_context = {}
+
     for table in source_tables:
         schema_data = await fetch_table_schema(table)
-        
-        # We handle missing schemas gracefully or strictly depending on needs
-        if schema_data:
-            graph_context_blocks.append(
-                f"GRAPH SCHEMA FOR TABLE: {table}\n"
-                f"Columns: {schema_data.get('columns', [])}\n"
-                f"Dependencies: {schema_data.get('dependencies', [])}"
-            )
-        else:
-            logger.warning(f"No schema found for {table}, but continuing...")
 
-    if not graph_context_blocks:
+        columns = []
+        if isinstance(schema_data, dict):
+            for col in schema_data.get("columns", []):
+                columns.append({
+                    "name": col.get("column_name"),
+                    "datatype": col.get("datatype")
+                })
+
+        graph_context[table] = {
+            "columns": columns,
+            "relationships": schema_data.get("relationships", [])
+        }
+
+    # Persist into session
+    context_data["source_tables"] = list(source_tables)
+    context_data["graph_context"] = graph_context
+
+    save_context(session_id, context_data)
+
+    if not graph_context:
         raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve any schema context from MCP."
+            status_code=400,
+            detail="Graph schema could not be built from MCP."
         )
 
-    # 4. CONSTRUCT FINAL ARCHITECT PROMPT
+
     final_metadata = "\n\n---\n\n".join(all_metadata_blocks)
-    final_graph = "\n\n---\n\n".join(graph_context_blocks)
+    final_graph = json.dumps(graph_context, indent=2)
 
     instruction_prompt = f"""You are a senior Data Warehouse Architect.
 

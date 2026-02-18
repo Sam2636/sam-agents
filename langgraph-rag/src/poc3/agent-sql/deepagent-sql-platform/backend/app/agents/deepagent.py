@@ -2,473 +2,419 @@ import os
 import json
 import re
 from datetime import datetime
-from typing import TypedDict, Annotated, List
+from typing import TypedDict, Annotated, List, Dict, Any
+
+import sqlglot
+from sqlglot import exp
 
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage, ToolMessage
-from langchain_core.tools import tool
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, END, add_messages
-from langgraph.prebuilt import ToolNode
 
 from app.agents.tools.sql_rewrite_tool import rewrite_sql
 from app.agents.tools.neo4j_tool import run_cypher
 from app.agents.middleware.human_approval import requires_approval
 from app.config import OPENAI_API_KEY
 from app.memory.sqlite_store import save_message, load_messages
+from app.memory.session_context import load_context, save_context
 
-# --- 1. SYSTEM PROMPT (The "Rules of Engagement") ---
+# =========================================================
+# 1️⃣ SYSTEM PROMPT
+# =========================================================
+
 SYSTEM_PROMPT = """
-You are a senior Data Warehouse Architect and Orchestrator. 
-Your goal is to help users understand metadata, build SQL, and manage files.
+You are a Senior Data Warehouse Architect.
 
-CORE CAPABILITIES:
-1. SCHEMA CHAT: Use 'get_database_schema' to explain tables and relationships to the user.
-2. SQL GENERATION: Use 'process_sql_generation' to create safe, optimized SQL.
-3. FILE MANAGEMENT: Use 'create_document' or 'edit_file' to save your work or update specs.
-
-GUIDELINES:
-- Always prioritize technical accuracy.
-- If the user asks for SQL, you MUST run it through 'process_sql_generation'.
-- Be conversational. If you call a tool, explain what the tool found or did.
-- If you aren't sure about a table name, ask the user or check the schema tool first.
+Rules:
+- Never hallucinate tables or columns.
+- Always validate against provided GRAPH CONTEXT.
+- Prefer explicit JOIN conditions.
+- If unsure about schema, ask or check schema tool.
+- Maintain conversation continuity.
 """
-# --- 1. DEFINE AGENT STATE ---
+
+# =========================================================
+# 2️⃣ SESSION STATE
+# =========================================================
+
 class AgentState(TypedDict):
-    # Keep appending messages across nodes. Without this reducer, each node
-    # overwrites state and can send invalid tool-role sequences to OpenAI.
     messages: Annotated[List[BaseMessage], add_messages]
     user_input: str
     session_id: str
     intent: str
-    generated_sql: str
-    requires_approval: bool
-    sql_filename: str
+    last_generated_sql: str
+    last_validation_errors: List[str]
+    last_intent: str
+    last_schema_lookup: Dict[str, Any]
+    business_context: Dict[str, Any]
+    orchestration_status: Dict[str, str]
 
-# --- 2. DEFINE TOOLS ---
-@tool
-def create_document(filename: str, content: str):
-    """Creates a new text or markdown document on the server."""
-    os.makedirs("./docs", exist_ok=True)
-    with open(f"./docs/{filename}", "w") as f:
-        f.write(content)
-    return f"Document {filename} created successfully."
+# =========================================================
+# 3️⃣ LLM
+# =========================================================
 
-@tool
-def edit_file(filename: str, search_text: str, replace_text: str):
-    """Edits an existing file by replacing a specific string."""
-    if not os.path.exists(filename):
-        return "File not found."
-    with open(filename, "r") as f:
-        data = f.read()
-    new_data = data.replace(search_text, replace_text)
-    with open(filename, "w") as f:
-        f.write(new_data)
-    return f"File {filename} updated."
-
-@tool
-def process_sql_generation(raw_sql: str):
-    """Validates and rewrites SQL for safety. Use this when the user wants SQL."""
-    # Ensure raw_sql isn't empty or just markdown
-    clean_sql = raw_sql.replace("```sql", "").replace("```", "").strip()
-    safe_sql = rewrite_sql(clean_sql)
-    return {
-        "safe_sql": safe_sql, 
-        "approval_needed": requires_approval(safe_sql)
-    }
-
-@tool
-def get_database_schema(table_name: str):
-    """Fetches active table schema (columns, datatypes, keys) from metadata graph."""
-    try:
-        query = """
-        MATCH (t:Table)-[:HAS_VERSION]->(v:TableVersion {active:true})-[:HAS_COLUMN]->(c:ColumnVersion {active:true})
-        WHERE t.id = $table_name OR t.name = $table_name OR t.id ENDS WITH ('.' + $table_name)
-        RETURN t.id AS table_id,
-               v.id AS version_id,
-               collect({
-                   name: c.name,
-                   datatype: c.datatype,
-                   is_pk: coalesce(c.is_pk, false),
-                   is_fk: coalesce(c.is_fk, false)
-               }) AS columns
-        LIMIT 1
-        """
-        rows = run_cypher(query=query, table_name=table_name)
-        if not rows:
-            return {
-                "table_name": table_name,
-                "found": False,
-                "columns": [],
-                "message": "No active schema found for this table."
-            }
-        row = rows[0]
-        return {
-            "table_name": row.get("table_id", table_name),
-            "version": row.get("version_id"),
-            "found": True,
-            "columns": row.get("columns", [])
-        }
-    except Exception as e:
-        return {
-            "table_name": table_name,
-            "found": False,
-            "columns": [],
-            "error": str(e)
-        }
-
-# --- 3. CONFIGURE LLM & GRAPH ---
 llm = ChatOpenAI(
     model="gpt-4o-mini",
     temperature=0,
-    api_key=KEY,
+    api_key="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"
 )
 
-tools = [create_document, edit_file, process_sql_generation, get_database_schema]
-model_with_tools = llm.bind_tools(tools)
-
-def _extract_sql_from_text(text: str) -> str:
-    if not text:
-        return ""
-
-    # 1) JSON payload style: {"final_sql":"..."}
-    json_sql = re.search(r'"final_sql"\s*:\s*"((?:\\.|[^"\\])*)"', text, re.IGNORECASE | re.DOTALL)
-    if json_sql:
-        try:
-            return bytes(json_sql.group(1), "utf-8").decode("unicode_escape").strip()
-        except Exception:
-            return json_sql.group(1).strip()
-
-    # 2) SQL code fence
-    for block in re.findall(r"```(?:sql)?\s*(.*?)```", text, flags=re.IGNORECASE | re.DOTALL):
-        if re.search(r"\b(select|create|with|insert)\b", block, re.IGNORECASE):
-            return block.strip()
-
-    # 3) Freeform fallback
-    create_stmt = re.search(r"(CREATE\s+TABLE[\s\S]*?;)", text, re.IGNORECASE)
-    if create_stmt:
-        return create_stmt.group(1).strip()
-
-    return ""
-
-def _looks_like_sql(text: str) -> bool:
-    if not text:
-        return False
-
-    lowered = text.strip().lower()
-    placeholders = {
-        "the full sql statement",
-        "final sql",
-        "sql statement",
-        "proposed sql",
-    }
-    if lowered in placeholders:
-        return False
-
-    return bool(
-        re.search(r"\b(select|create|with|insert)\b", text, re.IGNORECASE)
-        and re.search(r"\b(from|as)\b", text, re.IGNORECASE)
-    )
-
-def _extract_column_name(question: str) -> str:
-    if not question:
-        return ""
-    patterns = [
-        r"schema\s+for\s+([a-zA-Z_][a-zA-Z0-9_]*)",
-        r"type\s+of\s+([a-zA-Z_][a-zA-Z0-9_]*)",
-        r"datatype\s+of\s+([a-zA-Z_][a-zA-Z0-9_]*)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, question, re.IGNORECASE)
-        if match:
-            return match.group(1)
-    return ""
-
-def _find_latest_sql(messages: List[BaseMessage]) -> str:
-    for msg in reversed(messages):
-        content = getattr(msg, "content", "")
-        if not isinstance(content, str):
-            continue
-        sql_text = _extract_sql_from_text(content)
-        if sql_text:
-            return sql_text
-    return ""
-
-def _infer_column_schema(sql_text: str, column_name: str) -> str:
-    if not sql_text or not column_name:
-        return ""
-
-    col = re.escape(column_name)
-    rules = [
-        (rf"COUNT\s*\([^)]*\)\s+AS\s+{col}\b", "BIGINT"),
-        (rf"SUM\s*\([^)]*\)\s+AS\s+{col}\b", "DECIMAL/NUMERIC"),
-        (rf"AVG\s*\([^)]*\)\s+AS\s+{col}\b", "DOUBLE/DECIMAL"),
-        (rf"MIN\s*\([^)]*\)\s+AS\s+{col}\b", "Same as source column datatype"),
-        (rf"MAX\s*\([^)]*\)\s+AS\s+{col}\b", "Same as source column datatype"),
-    ]
-    for pattern, dtype in rules:
-        if re.search(pattern, sql_text, re.IGNORECASE):
-            return dtype
-    # If the alias exists but not from a known aggregate, assume passthrough.
-    if re.search(rf"\bAS\s+{col}\b", sql_text, re.IGNORECASE):
-        return "Same as source column datatype"
-    return ""
-
-def _split_select_expressions(select_clause: str) -> List[str]:
-    parts: List[str] = []
-    current: List[str] = []
-    depth = 0
-    for ch in select_clause:
-        if ch == "(":
-            depth += 1
-        elif ch == ")":
-            depth = max(0, depth - 1)
-        elif ch == "," and depth == 0:
-            part = "".join(current).strip()
-            if part:
-                parts.append(part)
-            current = []
-            continue
-        current.append(ch)
-
-    tail = "".join(current).strip()
-    if tail:
-        parts.append(tail)
-    return parts
-
-def _infer_all_column_schemas(sql_text: str) -> List[dict]:
-    if not sql_text:
-        return []
-
-    select_match = re.search(r"\bSELECT\b([\s\S]*?)\bFROM\b", sql_text, re.IGNORECASE)
-    if not select_match:
-        return []
-
-    select_clause = select_match.group(1)
-    result: List[dict] = []
-    for expr in _split_select_expressions(select_clause):
-        alias_match = re.search(r"\bAS\s+([a-zA-Z_][a-zA-Z0-9_]*)\b", expr, re.IGNORECASE)
-        if alias_match:
-            col_name = alias_match.group(1)
-        else:
-            # Handle simple passthrough like "customer_id"
-            bare = re.match(r"^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*$", expr)
-            if not bare:
-                continue
-            col_name = bare.group(1)
-
-        result.append(
-            {
-                "column": col_name,
-                "inferred_datatype": _infer_column_schema(sql_text, col_name) or "Unknown (needs source schema)",
-            }
-        )
-    return result
-
-def route_intent(state: AgentState):
-    intent = state.get("intent", "chat")
-    if intent in ("sql_write", "sql_rewrite"):
-        return "sql_pipeline"
-    if intent == "schema_question":
-        return "schema_pipeline"
-    return "agent"
+# =========================================================
+# 4️⃣ INTENT ROUTER
+# =========================================================
 
 def detect_intent(state: AgentState):
     text = (state.get("user_input") or "").lower()
-
-    if ("schema" in text and "column" in text) or ("schema for" in text) or ("datatype of" in text) or ("type of" in text):
-        intent = "schema_question"
-    elif ("write the sql file" in text) or ("final_sql" in text) or ("proposed sql" in text):
-        intent = "sql_write"
-    elif ("rewrite" in text and "sql" in text):
-        intent = "sql_rewrite"
+    if any(word in text for word in ["schema", "datatype", "structure"]):
+        intent = "schema"
+    elif any(word in text for word in ["business", "meaning", "definition"]):
+        intent = "business"
+    elif any(word in text for word in ["modify", "change", "update", "add", "remove"]):
+        intent = "sql_modify"
+    elif any(word in text for word in ["sql", "select", "generate", "count", "sum", "group by", "join", "total"]):
+        intent = "sql_generate"
     else:
         intent = "chat"
+    return {"intent": intent, "last_intent": intent}
 
-    return {"intent": intent}
+def route_intent(state: AgentState):
+    mapping = {
+        "sql_generate": "orchestrator",
+        "sql_modify": "orchestrator",
+        "schema": "orchestrator",
+        "business": "orchestrator",
+        "chat": "orchestrator",
+    }
+    return mapping.get(state["intent"], "orchestrator")
+
+# =========================================================
+# 5️⃣ SQL UTILITIES
+# =========================================================
+
+def extract_sql_from_text(text: str) -> str:
+    blocks = re.findall(r"```(?:sql)?\s*(.*?)```", text, re.I | re.S)
+    if blocks:
+        return blocks[0].strip()
+    match = re.search(r"(SELECT[\s\S]+?;)", text, re.I)
+    return match.group(1).strip() if match else ""
+
+def extract_sql_metadata(sql_text: str):
+    try:
+        parsed = sqlglot.parse_one(sql_text)
+    except Exception:
+        return set(), set()
+    tables = {t.name for t in parsed.find_all(exp.Table)}
+    columns = {c.name for c in parsed.find_all(exp.Column)}
+    return tables, columns
+
+def resolve_table_name(table_name: str, graph_context: dict) -> str | None:
+    if table_name in graph_context:
+        return table_name
+    for full_name in graph_context.keys():
+        if full_name.split(".")[-1] == table_name:
+            return full_name
+    return None
+
+def validate_sql_against_graph(sql_text: str, graph_context: Dict[str, Any]):
+    errors = []
+    tables, columns = extract_sql_metadata(sql_text)
+    resolved_tables = {}
+
+    for table in tables:
+        resolved = resolve_table_name(table, graph_context)
+        if not resolved:
+            errors.append(f"Table '{table}' not found in graph context.")
+        else:
+            resolved_tables[table] = resolved
+
+    for column in columns:
+        found = any(
+            column == col.get("name")
+            for table_schema in graph_context.values()
+            for col in table_schema.get("columns", [])
+        )
+        if not found:
+            errors.append(f"Column '{column}' not found in graph context.")
+
+    return errors, resolved_tables
+
+# =========================================================
+# 6️⃣ SESSION STATE MANAGER
+# =========================================================
+
+def update_session_state(session_id: str, updates: Dict[str, Any]):
+    context = load_context(session_id) or {}
+    context.setdefault("compiler_state", {})
+    context.setdefault("orchestration_status", {})
+    context["compiler_state"].update(updates)
+    context["orchestration_status"].update({k: "completed" for k in updates.keys()})
+    save_context(session_id, context)
+
+# =========================================================
+# 7️⃣ ORCHESTRATOR NODE
+# =========================================================
+
+def orchestrator(state: AgentState):
+    # Route to appropriate pipeline
+    intent = state["intent"]
+    result = {}
+    if intent in ["sql_generate", "sql_modify"]:
+        result = sql_pipeline(state)
+    elif intent == "schema":
+        result = schema_pipeline(state)
+    elif intent == "business":
+        result = business_pipeline(state)
+    elif intent == "chat":
+        result = chat_pipeline(state)
+    # Update orchestration status
+    update_session_state(state["session_id"], {intent: "completed"})
+    return result
+
+# =========================================================
+# 8️⃣ SQL PIPELINE (CSV aware)
+# =========================================================
 
 def sql_pipeline(state: AgentState):
-    user_input = state.get("user_input", "")
-    session_id = state.get("session_id", "session")
-    raw_sql = _extract_sql_from_text(user_input)
-    intent = state.get("intent", "sql_write")
+    session_id = state["session_id"]
+    context_data = load_context(session_id) or {}
+    graph_context = context_data.get("graph_context", {})
+    compiler_state = context_data.get("compiler_state", {})
+    previous_sql = compiler_state.get("last_generated_sql")
+    business_spec = context_data.get("business_spec", {})
 
-    # For rewrite requests, allow using prior generated SQL when user does not paste it again.
-    if not raw_sql and intent == "sql_rewrite":
-        raw_sql = _find_latest_sql(state.get("messages", []))
+    # Include CSV content if available
+    csv_data = context_data.get("uploaded_csv", {})  # expects dict: table -> list of rows
+    csv_summary = []
+    for table, rows in csv_data.items():
+        if rows:
+            sample = rows[:5]  # first 5 rows
+            csv_summary.append(f"Table: {table}\nSample Rows: {json.dumps(sample, indent=2)}")
+    csv_summary_text = "\n\n".join(csv_summary) if csv_summary else "No CSV data uploaded."
 
-    if not raw_sql or not _looks_like_sql(raw_sql):
-        return {
-            "messages": [AIMessage(content="I could not find valid SQL. Please provide executable SQL (not placeholders like `The full SQL statement`).")],
-            "generated_sql": "",
-            "requires_approval": False,
-            "sql_filename": "",
-        }
+    # Build prompt strictly from business spec
+    if business_spec:
+        prompt = f"""
+You are a Senior Data Warehouse Architect.
 
-    sql_result = process_sql_generation.invoke({"raw_sql": raw_sql})
-    safe_sql = sql_result.get("safe_sql", "")
-    approval = bool(sql_result.get("approval_needed", False))
+Business Request: Generate SQL based on this business specification.
 
+Business Spec:
+{json.dumps(business_spec, indent=2)}
+
+CSV Data (sample rows):
+{csv_summary_text}
+
+Source Table Schemas:
+{json.dumps(graph_context, indent=2)}
+
+Rules:
+1. Only use columns defined in the business spec.
+2. Apply aggregate functions as specified.
+3. Output a valid SQL query to create the target table.
+4. Return SQL only inside ```sql``` block.
+"""
+    # If user explicitly wants to modify previous SQL
+    elif previous_sql and "modify" in state["user_input"].lower():
+        prompt = f"""
+Previous SQL:
+{previous_sql}
+
+User wants:
+{state['user_input']}
+
+Return ONLY SQL inside ```sql``` block.
+"""
+    else:
+        # Fallback: simple SQL generation based on user_input description
+        prompt = f"""
+Generate SQL using GRAPH CONTEXT and CSV samples.
+
+CSV Data:
+{csv_summary_text}
+
+Business Request:
+{state['user_input']}
+
+Return ONLY SQL inside ```sql``` block.
+"""
+
+    # Call LLM
+    response = llm.invoke([
+        SystemMessage(content=SYSTEM_PROMPT + "\n\nGRAPH CONTEXT:\n" + json.dumps(graph_context, indent=2)),
+        HumanMessage(content=prompt)
+    ])
+
+    raw_sql = extract_sql_from_text(response.content)
+    if not raw_sql:
+        return {"messages": [AIMessage(content="⚠️ Could not generate SQL. Please clarify.")]}
+
+    safe_sql = rewrite_sql(raw_sql)
+
+    # Validation loop: fix table/column issues
+    for _ in range(2):
+        errors, resolved_tables = validate_sql_against_graph(safe_sql, graph_context)
+        for short, full in resolved_tables.items():
+            if short != full:
+                safe_sql = re.sub(rf"\b{short}\b", full, safe_sql)
+        if not errors:
+            break
+        fix_prompt = f"""
+SQL has validation errors:
+{errors}
+
+Fix using GRAPH CONTEXT.
+Return ONLY corrected SQL inside ```sql``` block.
+"""
+        fix_response = llm.invoke([
+            SystemMessage(content=SYSTEM_PROMPT + "\n\nGRAPH CONTEXT:\n" + json.dumps(graph_context, indent=2)),
+            HumanMessage(content=fix_prompt)
+        ])
+        corrected_sql = extract_sql_from_text(fix_response.content)
+        if not corrected_sql:
+            break
+        safe_sql = rewrite_sql(corrected_sql)
+
+    final_errors, _ = validate_sql_against_graph(safe_sql, graph_context)
+    if final_errors:
+        return {"messages": [AIMessage(content=f"⚠️ Unable to fix SQL automatically:\n{final_errors}")]}
+
+    # Save SQL
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    filename = f"{session_id}_generated_{timestamp}.sql"
-    create_document.invoke({"filename": filename, "content": safe_sql + "\n"})
+    filename = f"{session_id}_{timestamp}.sql"
+    os.makedirs("./docs", exist_ok=True)
+    with open(f"./docs/{filename}", "w") as f:
+        f.write(safe_sql)
 
-    reply = (
-        f"SQL generated and saved to `docs/{filename}`.\n\n"
-        f"Schema hint: `total_orders` from `COUNT(...)` is usually `BIGINT`.\n\n"
-        f"```sql\n{safe_sql}\n```"
-    )
-    return {
-        "messages": [AIMessage(content=reply)],
-        "generated_sql": safe_sql,
-        "requires_approval": approval,
-        "sql_filename": filename,
-    }
+    # Update session state
+    update_session_state(session_id, {
+        "last_generated_sql": safe_sql,
+        "last_validation_errors": [],
+        "last_sql_file": filename,
+        "approved": not requires_approval(safe_sql)
+    })
+
+    return {"messages": [AIMessage(content=f"✅ SQL generated and saved as {filename}:\n```sql\n{safe_sql}\n```")]}
+
+# =========================================================
+# 9️⃣ SCHEMA PIPELINE (supports column queries)
+# =========================================================
 
 def schema_pipeline(state: AgentState):
-    question = state.get("user_input", "")
-    column = _extract_column_name(question)
-    latest_sql = _find_latest_sql(state.get("messages", []))
+    session_id = state["session_id"]
+    user_input = state["user_input"].lower()
+    context_data = load_context(session_id) or {}
+    graph_context = context_data.get("graph_context", {})
 
-    if latest_sql and ("all schema" in question.lower() or "all schemas" in question.lower() or "all columns" in question.lower()):
-        columns = _infer_all_column_schemas(latest_sql)
-        if columns:
-            lines = ["Inferred schema for columns in the latest SQL:"]
-            for c in columns:
-                lines.append(f"- {c['column']}: {c['inferred_datatype']}")
-            return {"messages": [AIMessage(content="\n".join(lines))]}
+    # Column-specific query
+    col_match = re.search(r"(?:column|field|attribute|schema of)\s+(\w+)", user_input)
+    if col_match:
+        col_name = col_match.group(1)
+        for table, schema in graph_context.items():
+            for col in schema.get("columns", []):
+                if col.get("name") == col_name:
+                    return {"messages": [AIMessage(content=json.dumps({
+                        "table": table,
+                        "column": col_name,
+                        "type": col.get("datatype"),
+                        "primary_key": col.get("primary_key", False)
+                    }, indent=2))]}
+        return {"messages": [AIMessage(content=f"⚠️ Column '{col_name}' not found in graph context.")]}
 
-    if column and latest_sql:
-        inferred_type = _infer_column_schema(latest_sql, column)
-        if inferred_type:
-            return {
-                "messages": [
-                    AIMessage(
-                        content=(
-                            f"`{column}` is a derived column from your generated SQL.\n"
-                            f"Expected datatype: `{inferred_type}`.\n"
-                            f"Reason: it is derived using an aggregate expression."
-                        )
-                    )
-                ]
-            }
+    # Table-level query fallback
+    table_match = re.search(r"schema\s+for\s+(\w+)", user_input)
+    if table_match:
+        table_name = table_match.group(1)
+        query = """
+        MATCH (t:Table)-[:HAS_COLUMN]->(c:Column)
+        WHERE t.name = $table
+        RETURN t.name as table,
+               collect({name:c.name, datatype:c.datatype}) as columns
+        """
+        rows = run_cypher(query=query, table=table_name)
+        update_session_state(session_id, {"last_schema_lookup": rows})
+        return {"messages": [AIMessage(content=json.dumps(rows, indent=2))]}
 
-    return {
-        "messages": [
-            AIMessage(
-                content=(
-                    "I can answer schema precisely if you share the table/column reference "
-                    "(for example: `ODP.sales.orders.order_amount`) or provide the generated SQL."
-                )
-            )
-        ]
-    }
+    return {"messages": [AIMessage(content="⚠️ Please specify a column or table name.")]}
 
-def call_model(state: AgentState):
-    # The fix for "messages role tool" error: 
-    # Ensure the history is consistent before calling OpenAI
-    response = model_with_tools.invoke(state["messages"])
+# =========================================================
+# 10️⃣ BUSINESS PIPELINE
+# =========================================================
+
+def business_pipeline(state: AgentState):
+    session_id = state["session_id"]
+    context_data = load_context(session_id) or {}
+    business_context = context_data.get("business_spec", {})
+    return {"messages": [AIMessage(content=json.dumps(business_context, indent=2))]}
+
+# =========================================================
+# 11️⃣ CHAT PIPELINE
+# =========================================================
+
+def chat_pipeline(state: AgentState):
+    session_id = state["session_id"]
+    context_data = load_context(session_id) or {}
+    graph_context = context_data.get("graph_context", {})
+    compiler_state = context_data.get("compiler_state", {})
+
+    system_message = SystemMessage(
+        content=SYSTEM_PROMPT +
+                "\n\nGRAPH CONTEXT:\n" + json.dumps(graph_context, indent=2) +
+                "\n\nCOMPILER MEMORY:\n" + json.dumps(compiler_state, indent=2)
+    )
+
+    filtered_messages = [msg for msg in state["messages"] if not isinstance(msg, SystemMessage)]
+    messages = [system_message] + filtered_messages
+    response = llm.invoke(messages)
     return {"messages": [response]}
 
-def route_logic(state: AgentState):
-    last_message = state["messages"][-1]
-    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-        return "tools"
-    return END
+# =========================================================
+# 12️⃣ WORKFLOW
+# =========================================================
 
 workflow = StateGraph(AgentState)
 workflow.add_node("detect_intent", detect_intent)
+workflow.add_node("orchestrator", orchestrator)
 workflow.add_node("sql_pipeline", sql_pipeline)
 workflow.add_node("schema_pipeline", schema_pipeline)
-workflow.add_node("agent", call_model)
-workflow.add_node("tools", ToolNode(tools))
+workflow.add_node("business_pipeline", business_pipeline)
+workflow.add_node("chat_pipeline", chat_pipeline)
+
 workflow.set_entry_point("detect_intent")
 workflow.add_conditional_edges("detect_intent", route_intent)
-workflow.add_conditional_edges("agent", route_logic)
-workflow.add_edge("tools", "agent")
-workflow.add_edge("sql_pipeline", END)
-workflow.add_edge("schema_pipeline", END)
-
+workflow.add_edge("orchestrator", END)
 app = workflow.compile()
 
-# --- 4. THE REWRITTEN RUNNER ---
-def run_agent(session_id: str, user_input: str, use_history: bool = True, persist_history: bool = True):
-    try:
-        history = []
-        if use_history:
-            # Expected format from load_messages: List[Tuple(role, content)]
-            history = load_messages(session_id)
-        
-        # 2. Build CLEAN history
-        # We start with the System Message to define the agent's personality
-        initial_messages = [SystemMessage(content=SYSTEM_PROMPT)]
+# =========================================================
+# 13️⃣ RUNNER
+# =========================================================
 
-        # Convert stored history into LangChain message objects
+def run_agent(session_id: str, user_input: str):
+    try:
+        history = load_messages(session_id)
+        context_data = load_context(session_id) or {}
+        graph_context = context_data.get("graph_context", {})
+
+        initial_messages = [SystemMessage(content=SYSTEM_PROMPT + "\n\nGRAPH CONTEXT:\n" + json.dumps(graph_context, indent=2))]
         for role, content in history:
             if role == "user":
                 initial_messages.append(HumanMessage(content=str(content)))
             elif role == "assistant":
-                # IMPORTANT: We only pass the text 'content'. 
-                # This strips old tool_calls and prevents the "role: tool" sequence error.
-                if content: # Only add if there is actual text
-                    initial_messages.append(AIMessage(content=str(content)))
-        
-        # 3. Add the CURRENT user input (Outside the loop!)
+                initial_messages.append(AIMessage(content=str(content)))
         initial_messages.append(HumanMessage(content=user_input))
-        
-        # 4. Invoke the Graph
-        # LangGraph will handle the loop between the LLM and the Tools
-        final_state = app.invoke(
-            {
-                "messages": initial_messages,
-                "user_input": user_input,
-                "session_id": session_id,
-            }
-        )
-        
-        # 5. Extraction Logic
-        # The last message in the state is the final response from the assistant
+
+        final_state = app.invoke({
+            "messages": initial_messages,
+            "user_input": user_input,
+            "session_id": session_id,
+        })
+
         last_msg = final_state["messages"][-1]
-        chat_reply = last_msg.content if isinstance(last_msg.content, str) else json.dumps(last_msg.content)
-        
-        generated_sql = final_state.get("generated_sql", "")
-        approval_flag = final_state.get("requires_approval", False)
+        chat_reply = last_msg.content
 
-        # 6. Extract Tool Output (Specifically for SQL generation)
-        # We look through the messages in the final state for ToolMessages 
-        # that contain our 'safe_sql' payload.
-        for msg in final_state["messages"]:
-            if isinstance(msg, ToolMessage):
-                try:
-                    # Tool outputs from ToolNode are usually JSON strings
-                    data = json.loads(msg.content)
-                    if isinstance(data, dict) and "safe_sql" in data:
-                        generated_sql = data["safe_sql"]
-                        approval_flag = data.get("approval_needed", False)
-                except (json.JSONDecodeError, TypeError):
-                    # Not a JSON tool response or not the one we are looking for
-                    continue
+        save_message(session_id, "user", user_input)
+        save_message(session_id, "assistant", chat_reply)
 
-        # 7. Persistence
-        # Save the turn to the database for the next interaction
-        if persist_history:
-            save_message(session_id, "user", user_input)
-            save_message(session_id, "assistant", chat_reply)
-
-        return {
-            "status": "completed",
-            "chat_reply": chat_reply,
-            "sql": generated_sql,
-            "requires_approval": approval_flag
-        }
+        return {"status": "completed", "chat_reply": chat_reply}
 
     except Exception as e:
-        # Log the actual error to your terminal for debugging
-        print(f"CRITICAL AGENT ERROR: {str(e)}")
-        
-        # Return a clean error object so the frontend doesn't crash
-        return {
-            "status": "error",
-            "chat_reply": f"I encountered an error while processing your request: {str(e)}",
-            "sql": "",
-            "requires_approval": False
-        }
+        return {"status": "error", "chat_reply": str(e)}

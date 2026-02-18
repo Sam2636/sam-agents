@@ -24,7 +24,6 @@ app.include_router(sql_management.router, prefix="/sql", tags=["SQL"])
 app.include_router(lineage.router, prefix="/lineage", tags=["Lineage"])
 
 
-
 @app.on_event("startup")
 def startup() -> None:
     init_db()

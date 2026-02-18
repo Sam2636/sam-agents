@@ -82,6 +82,72 @@ def get_table_schema(table_name: str) -> dict:
         return record.data()
 # ------------------ RUN SERVER ------------------
 
+@mcp.tool()
+def generate_sql_from_spec(
+    table_name: str,
+    business_spec: dict
+) -> str:
+    """
+    Generates SQL for a table using transformation specification.
+    Only supports AGGREGATE tables.
+    """
+
+    if table_name not in business_spec:
+        return f"Table {table_name} not found in business spec."
+
+    spec = business_spec[table_name]
+
+    if spec["type"] != "AGGREGATE":
+        return "Only AGGREGATE tables supported."
+
+    source = spec["source"]
+    columns = spec["columns"]
+
+    select_parts = []
+    group_by = []
+
+    for col, logic in columns.items():
+        if "COUNT" in logic.upper() or "SUM" in logic.upper():
+            select_parts.append(f"{logic} AS {col}")
+        else:
+            select_parts.append(col)
+            group_by.append(col)
+
+    sql = f"""
+SELECT
+    {", ".join(select_parts)}
+FROM {source}
+"""
+
+    if group_by:
+        sql += f"\nGROUP BY {', '.join(group_by)}"
+
+    sql += "\nLIMIT 100;"
+
+    return sql
+
+@mcp.tool()
+def explain_column(table_name: str, column_name: str) -> dict:
+    """
+    Explains a column from the Neo4j schema.
+    """
+    query = """
+    MATCH (t:Table {id: $table_name})-[:HAS_VERSION]->(tv:TableVersion {active:true})
+    MATCH (tv)-[:HAS_COLUMN]->(cv:ColumnVersion {name:$column_name, active:true})
+    RETURN cv.name as name,
+           cv.datatype as datatype,
+           cv.business_description as description
+    """
+
+    with driver.session() as session:
+        result = session.run(query, table_name=table_name, column_name=column_name)
+        record = result.single()
+        if not record:
+            return {"error": "Column not found"}
+        return record.data()
+
+
+
 if __name__ == "__main__":
     # Use "sse" for HTTP-based transport. 
     # This will start a Starlette/FastAPI-style server.

@@ -40,7 +40,8 @@ export default function SqlGenerationPage() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
-  
+  const [generatedSql, setGeneratedSql] = useState("");
+
   const [sessionId, setSessionId] = useState(() => {
     return localStorage.getItem("sql_session_id") || "";
   });
@@ -105,48 +106,59 @@ export default function SqlGenerationPage() {
   };
 
   // --- SEND HANDLER (PORT 8080) ---
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+const handleSend = async () => {
+  if (!input.trim() || loading) return;
+  
+  if (!sessionId) {
+    setMessages(prev => [...prev, { role: "assistant", content: "No active session. Please upload a file first." }]);
+    return;
+  }
+
+  const userMsg = { role: "user", content: input };
+  setMessages(prev => [...prev, userMsg]);
+  setInput("");
+  setLoading(true);
+
+  try {
+    const endpoint = `http://localhost:8080/chat/`;
     
-    if (!sessionId) {
-      setMessages(prev => [...prev, { role: "assistant", content: "No active session. Please upload a file first." }]);
-      return;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, message: input })
+    });
+    
+    if (!response.ok) {
+      const errorDetail = await response.text();
+      console.error("Agent Response Error:", errorDetail);
+      throw new Error("Agent communication failed");
     }
 
-    const userMsg = { role: "user", content: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+    const data = await response.json();
+    const replyText = data.chat_reply || data.response || "I processed that request.";
 
-    try {
-      // Use normal chat endpoint for conversational turns.
-      const endpoint = `http://localhost:8080/chat/`;
-      
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, message: input })
-      });
-      
-      if (!response.ok) {
-        const errorDetail = await response.text();
-        console.error("Agent Response Error:", errorDetail);
-        throw new Error("Agent communication failed");
-      }
+    // 🔥 Extract SQL block if present
+    const sqlMatch = replyText.match(/```sql\s*([\s\S]*?)```/i);
+    const extractedSql = sqlMatch ? sqlMatch[1].trim() : null;
 
-      const data = await response.json();
-      setMessages(prev => [...prev, { 
-        role: "assistant", 
-        content: data.chat_reply || data.response || "I processed that request.", 
-        sql: data.sql 
-      }]);
-    } catch (err) {
-      console.error("Fetch Error:", err);
-      setMessages(prev => [...prev, { role: "assistant", content: "System error: Failed to communicate with Agent. Check CORS or Session ID." }]);
-    } finally {
-      setLoading(false);
+    if (extractedSql) {
+      setGeneratedSql(extractedSql); // 👈 NEW LEFT PANEL SQL
     }
-  };
+
+    setMessages(prev => [...prev, { 
+      role: "assistant", 
+      content: replyText.replace(/```sql[\s\S]*?```/i, "").trim(),
+      sql: extractedSql
+    }]);
+
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    setMessages(prev => [...prev, { role: "assistant", content: "System error: Failed to communicate with Agent. Check CORS or Session ID." }]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -204,9 +216,54 @@ export default function SqlGenerationPage() {
                 <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>Vis.js Lineage Graph</Typography>
                 <Typography variant="caption" sx={{ color: "primary.main", fontWeight: 800 }}>LIVE VIEW</Typography>
               </Box>
-              <Box sx={{ flex: 1, position: "relative" }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: 0,
+                  height: 0 // 👈 critical fix
+                }}
+              >
+
+  
+              {/* GRAPH (TOP HALF) */}
+              <Box
+              sx={{
+                flex: 1,
+                position: "relative",
+                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                minHeight: 0,
+                overflow: "hidden"
+              }}
+            >
+              <Box sx={{ position: "absolute", inset: 0 }}>
                 <LineageGraph />
               </Box>
+            </Box>
+
+              {/* SQL PANEL (BOTTOM HALF) */}
+              <Box sx={{ 
+                flex: 1, 
+                bgcolor: "#0a0a0a",
+                overflowY: "auto",
+                p: 2
+              }}>
+                <Typography variant="caption" sx={{ color: "primary.main", fontWeight: 700 }}>
+                  GENERATED SQL
+                </Typography>
+
+                {generatedSql ? (
+                  <SqlDisplay sql={generatedSql} />
+                ) : (
+                  <Typography variant="body2" sx={{ color: "text.secondary", mt: 2 }}>
+                    SQL output will appear here after generation.
+                  </Typography>
+                )}
+              </Box>
+
+            </Box>
+
             </Paper>
 
             <Paper elevation={12} sx={{ display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
