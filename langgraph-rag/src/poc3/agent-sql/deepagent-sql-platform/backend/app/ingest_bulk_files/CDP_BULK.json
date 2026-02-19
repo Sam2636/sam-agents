@@ -1,0 +1,142 @@
+[
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "customer_360",
+    "type": "AGGREGATE",
+    "version": 1,
+    "columns": [
+      {"name": "customer_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_accounts", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_loans", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_spend", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "customer_segment", "datatype": "VARCHAR", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "account_summary",
+    "type": "AGGREGATE",
+    "version": 1,
+    "columns": [
+      {"name": "account_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "total_transactions", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_balance", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "account_status", "datatype": "VARCHAR", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "transaction_summary",
+    "type": "AGGREGATE",
+    "version": 1,
+    "columns": [
+      {"name": "account_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_transactions", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_credit_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "total_debit_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "summary_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "loan_summary",
+    "type": "AGGREGATE",
+    "version": 1,
+    "columns": [
+      {"name": "loan_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "total_loan_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "outstanding_balance", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "loan_risk_category", "datatype": "VARCHAR", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "branch_kpi",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "branch_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_customers", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_revenue", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "loan_disbursement", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "kpi_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "atm_kpi",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "atm_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "branch_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "total_transactions", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "cash_dispensed", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "kpi_date", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "credit_card_kpi",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "card_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "monthly_spend", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "default_rate", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "kpi_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "transport_kpi",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "vehicle_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_trips", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "total_distance", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "total_revenue", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "kpi_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "fuel_kpi",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "vehicle_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_fuel_cost", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "average_price", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "fuel_consumption", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "kpi_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "CDP",
+    "schema": "analytics",
+    "name": "revenue_dashboard",
+    "type": "KPI",
+    "version": 1,
+    "columns": [
+      {"name": "report_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "total_bank_revenue", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "total_transport_revenue", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "total_interest_income", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "report_month", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  }
+]

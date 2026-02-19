@@ -1,0 +1,47 @@
+{
+  "source_tables": [
+    "CDP.analytics.orders_summary",
+    "ODP.sales.orders"
+  ],
+  "graph_context": {
+    "CDP.analytics.orders_summary": {
+      "error": "Active table version for 'CDP.analytics.orders_summary' not found."
+    },
+    "ODP.sales.orders": {
+      "table_id": "ODP.sales.orders",
+      "table_type": "SOURCE",
+      "version": 1,
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "INT",
+          "is_pk": true
+        },
+        {
+          "name": "customer_id",
+          "type": "INT",
+          "is_pk": false
+        },
+        {
+          "name": "order_amount",
+          "type": "DECIMAL",
+          "is_pk": false
+        }
+      ],
+      "dependencies": [
+        "FDP.sales.orders_enriched"
+      ]
+    }
+  },
+  "business_spec": {
+    "CDP.analytics.orders_summary": {
+      "type": "AGGREGATE",
+      "source": "ODP.sales.orders",
+      "columns": {
+        "customer_id": "Direct mapping from source",
+        "total_orders": "COUNT(order_id)",
+        "total_amount": "SUM(order_amount)"
+      }
+    }
+  }
+}

@@ -54,3 +54,10 @@ export const fetchColumnCanvasLineage = () =>
       if (!res.ok) throw new Error(`Column canvas API error: ${res.status}`);
       return res.json();
     });
+
+export const dropAllMetadataGraph = () =>
+  fetch("http://localhost:8000/metadata/admin/drop-all", { method: "DELETE" })
+    .then((res) => {
+      if (!res.ok) throw new Error(`Drop graph API error: ${res.status}`);
+      return res.json();
+    });

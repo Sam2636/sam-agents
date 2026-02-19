@@ -1,0 +1,142 @@
+[
+  {
+    "layer": "ODP",
+    "schema": "banking",
+    "name": "customers_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "customer_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "first_name", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "last_name", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "email", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "created_at", "datatype": "TIMESTAMP", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "banking",
+    "name": "accounts_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "account_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "account_type", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "balance", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "opened_date", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "finance",
+    "name": "transactions_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "transaction_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "account_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "transaction_type", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "transaction_date", "datatype": "TIMESTAMP", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "finance",
+    "name": "loans_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "loan_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "loan_type", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "loan_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "interest_rate", "datatype": "DECIMAL", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "banking",
+    "name": "branches_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "branch_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "branch_name", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "city", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "state", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "opened_date", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "banking",
+    "name": "atm_logs_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "atm_log_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "atm_id", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "branch_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "transaction_count", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "log_date", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "finance",
+    "name": "credit_cards_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "card_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "card_type", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "credit_limit", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "issued_date", "datatype": "DATE", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "transport",
+    "name": "transport_trips_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "trip_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "vehicle_id", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "distance_km", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "trip_date", "datatype": "TIMESTAMP", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "transport",
+    "name": "fuel_transactions_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "fuel_txn_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "vehicle_id", "datatype": "INT", "is_pk": false, "is_fk": false},
+      {"name": "fuel_type", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "fuel_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "txn_date", "datatype": "TIMESTAMP", "is_pk": false, "is_fk": false}
+    ]
+  },
+  {
+    "layer": "ODP",
+    "schema": "finance",
+    "name": "payments_raw",
+    "type": "BASE",
+    "version": 1,
+    "columns": [
+      {"name": "payment_id", "datatype": "INT", "is_pk": true, "is_fk": false},
+      {"name": "customer_id", "datatype": "INT", "is_pk": false, "is_fk": true},
+      {"name": "payment_method", "datatype": "VARCHAR", "is_pk": false, "is_fk": false},
+      {"name": "payment_amount", "datatype": "DECIMAL", "is_pk": false, "is_fk": false},
+      {"name": "payment_date", "datatype": "TIMESTAMP", "is_pk": false, "is_fk": false}
+    ]
+  }
+]

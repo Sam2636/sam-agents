@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import VisGraph from "./VisGraph";
 import { fetchVisualGraph } from "../services/api";
 
-export default function LineageGraph({ refresh }) {
+export default function LineageGraph({ refresh, focusNodeId, onGraphLoaded, onNodeSelect }) {
   const [graph, setGraph] = useState(null);
   const [hasError, setHasError] = useState(false);
 
@@ -15,6 +15,7 @@ export default function LineageGraph({ refresh }) {
         if (!isActive) return;
         console.log("VisJS graph API response:", data);
         setGraph(data);
+        onGraphLoaded?.(data);
       })
       .catch((err) => {
         if (!isActive) return;
@@ -35,5 +36,5 @@ export default function LineageGraph({ refresh }) {
     );
   }
 
-  return <VisGraph data={graph} />;
+  return <VisGraph data={graph} focusNodeId={focusNodeId} onNodeSelect={onNodeSelect} />;
 }

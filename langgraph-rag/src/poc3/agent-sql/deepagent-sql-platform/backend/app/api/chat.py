@@ -5,6 +5,7 @@ from app.config import SESSION_UPLOADS_DIR
 from pathlib import Path
 import logging
 import pandas as pd
+from pandas.errors import ParserError
 from typing import Set
 import os
 from mcp.client.streamable_http import streamablehttp_client
@@ -67,6 +68,14 @@ class ChatRequest(BaseModel):
     session_id: str
     message: str
 
+
+def _read_csv_with_fallback(file_path: Path):
+    try:
+        return pd.read_csv(file_path)
+    except ParserError:
+        return pd.read_csv(file_path, engine="python", on_bad_lines="skip")
+
+
 def _tables_from_session_csv(session_id: str) -> Set[str]:
     session_path = Path(SESSION_UPLOADS_DIR) / session_id
     if not session_path.exists():
@@ -75,9 +84,11 @@ def _tables_from_session_csv(session_id: str) -> Set[str]:
     source_tables: Set[str] = set()
     for file_path in session_path.glob("*.csv"):
         try:
-            df = pd.read_csv(file_path)
+            df = _read_csv_with_fallback(file_path)
         except Exception:
             continue
+
+        df.columns = [str(col).strip().lower() for col in df.columns]
 
         # Source lineage tables in metadata CSV
         if "source_tables" in df.columns:

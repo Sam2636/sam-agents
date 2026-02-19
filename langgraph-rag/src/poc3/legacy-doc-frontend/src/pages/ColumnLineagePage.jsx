@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowBack, ArrowForward, Refresh, Search, ViewColumn } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, FitScreen, Refresh, Search, ViewColumn, ZoomIn, ZoomOut, Home } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -62,6 +62,9 @@ const normalizeColumnsPayload = (payload) => {
 export default function ColumnLineagePage() {
   const canvasRef = useRef(null);
   const nodePositions = useRef(new Map());
+  const viewportRef = useRef({ scale: 1, offsetX: 0, offsetY: 0 });
+  const interactionRef = useRef({ mode: null, startX: 0, startY: 0, startOffsetX: 0, startOffsetY: 0 });
+  const hasAutoFitRef = useRef(false);
 
   const [refresh, setRefresh] = useState(false);
   const [search, setSearch] = useState("");
@@ -129,6 +132,76 @@ export default function ColumnLineagePage() {
     [edges, visibleIds]
   );
 
+  const screenToWorld = useCallback((sx, sy) => {
+    const { scale, offsetX, offsetY } = viewportRef.current;
+    return {
+      x: (sx - offsetX) / scale,
+      y: (sy - offsetY) / scale
+    };
+  }, []);
+
+  const fitToContent = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || filteredColumns.length === 0) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const drawLayers = layers.length ? layers : ["ODP", "FDP", "CDP"];
+    const layerGap = 320;
+    const nodeW = 200;
+    const nodeH = 22;
+    const tableGap = 20;
+    const rowGap = 28;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    drawLayers.forEach((layer, li) => {
+      const x = li * layerGap;
+      const layerCols = filteredColumns.filter((c) => c.layer === layer);
+      const tables = [...new Set(layerCols.map((c) => c.table))];
+      let yOffset = 60;
+      tables.forEach((table) => {
+        const cols = layerCols.filter((c) => c.table === table);
+        cols.forEach((_, ci) => {
+          const y = yOffset + 22 + ci * rowGap;
+          minX = Math.min(minX, x - nodeW / 2);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + nodeW / 2);
+          maxY = Math.max(maxY, y + nodeH);
+        });
+        const groupH = cols.length * rowGap + 30;
+        yOffset += groupH + tableGap;
+      });
+    });
+
+    if (!Number.isFinite(minX)) return;
+
+    const pad = 90;
+    const worldW = Math.max(1, maxX - minX + pad * 2);
+    const worldH = Math.max(1, maxY - minY + pad * 2);
+    const scale = Math.max(0.3, Math.min(1.6, Math.min(rect.width / worldW, rect.height / worldH)));
+
+    viewportRef.current = {
+      scale,
+      offsetX: rect.width / 2 - (minX + maxX) / 2 * scale,
+      offsetY: rect.height / 2 - (minY + maxY) / 2 * scale
+    };
+  }, [filteredColumns, layers]);
+
+  const zoomAt = useCallback((mx, my, delta) => {
+    const { scale, offsetX, offsetY } = viewportRef.current;
+    const nextScale = Math.max(0.3, Math.min(2.6, scale * delta));
+    const worldX = (mx - offsetX) / scale;
+    const worldY = (my - offsetY) / scale;
+    viewportRef.current = {
+      scale: nextScale,
+      offsetX: mx - worldX * nextScale,
+      offsetY: my - worldY * nextScale
+    };
+  }, []);
+
   const getHighlightedIds = useCallback(() => {
     if (!selectedCol && !hoveredId) return new Set();
     const rootId = selectedCol?.id || hoveredId;
@@ -177,18 +250,29 @@ export default function ColumnLineagePage() {
     const h = rect.height;
     ctx.clearRect(0, 0, w, h);
 
-    ctx.strokeStyle = "rgba(255,255,255,0.02)";
-    ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 50) {
+    const { scale, offsetX, offsetY } = viewportRef.current;
+    const grid = 50;
+    const left = (-offsetX) / scale;
+    const right = (w - offsetX) / scale;
+    const top = (-offsetY) / scale;
+    const bottom = (h - offsetY) / scale;
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    ctx.lineWidth = 1 / scale;
+    for (let x = Math.floor(left / grid) * grid; x < right; x += grid) {
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
+      ctx.moveTo(x, top);
+      ctx.lineTo(x, bottom);
       ctx.stroke();
     }
-    for (let y = 0; y < h; y += 50) {
+    for (let y = Math.floor(top / grid) * grid; y < bottom; y += grid) {
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
       ctx.stroke();
     }
 
@@ -198,7 +282,7 @@ export default function ColumnLineagePage() {
     const hasHighlight = highlighted.size > 0;
 
     drawLayers.forEach((layer, li) => {
-      const cx = (w / (drawLayers.length + 1)) * (li + 1);
+      const cx = li * 320;
       const layerCols = filteredColumns.filter((c) => c.layer === layer);
       const tables = [...new Set(layerCols.map((c) => c.table))];
 
@@ -319,11 +403,20 @@ export default function ColumnLineagePage() {
       ctx.textAlign = "right";
       ctx.fillText(col.type, pos.x + pos.w - 8, pos.y + pos.h / 2);
     });
+    ctx.restore();
   }, [columnsById, filteredColumns, getHighlightedIds, hoveredId, layers, selectedCol, visibleEdges]);
 
   useEffect(() => {
     drawGraph();
   }, [drawGraph]);
+
+  useEffect(() => {
+    if (!isLoading && filteredColumns.length > 0 && !hasAutoFitRef.current) {
+      fitToContent();
+      hasAutoFitRef.current = true;
+      drawGraph();
+    }
+  }, [drawGraph, filteredColumns, fitToContent, isLoading]);
 
   useEffect(() => {
     const handleResize = () => drawGraph();
@@ -340,8 +433,7 @@ export default function ColumnLineagePage() {
   const handleCanvasClick = (e) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const { x: mx, y: my } = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     let found = null;
     nodePositions.current.forEach((pos, id) => {
       if (mx >= pos.x && mx <= pos.x + pos.w && my >= pos.y && my <= pos.y + pos.h) {
@@ -354,8 +446,17 @@ export default function ColumnLineagePage() {
   const handleCanvasMouseMove = (e) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+
+    if (interactionRef.current.mode === "pan") {
+      viewportRef.current.offsetX = interactionRef.current.startOffsetX + (sx - interactionRef.current.startX);
+      viewportRef.current.offsetY = interactionRef.current.startOffsetY + (sy - interactionRef.current.startY);
+      drawGraph();
+      return;
+    }
+
+    const { x: mx, y: my } = screenToWorld(sx, sy);
     let found = null;
     nodePositions.current.forEach((pos, id) => {
       if (mx >= pos.x && mx <= pos.x + pos.w && my >= pos.y && my <= pos.y + pos.h) {
@@ -364,6 +465,49 @@ export default function ColumnLineagePage() {
     });
     setHoveredId(found);
     if (canvasRef.current) canvasRef.current.style.cursor = found ? "pointer" : "default";
+  };
+
+  const handleCanvasMouseDown = (e) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    const { x: mx, y: my } = screenToWorld(sx, sy);
+
+    let found = null;
+    nodePositions.current.forEach((pos, id) => {
+      if (mx >= pos.x && mx <= pos.x + pos.w && my >= pos.y && my <= pos.y + pos.h) {
+        found = id;
+      }
+    });
+
+    if (!found) {
+      interactionRef.current = {
+        mode: "pan",
+        startX: sx,
+        startY: sy,
+        startOffsetX: viewportRef.current.offsetX,
+        startOffsetY: viewportRef.current.offsetY
+      };
+      if (canvasRef.current) canvasRef.current.style.cursor = "grabbing";
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    interactionRef.current.mode = null;
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = hoveredId ? "pointer" : "default";
+    }
+  };
+
+  const handleCanvasWheel = (e) => {
+    e.preventDefault();
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    zoomAt(sx, sy, e.deltaY < 0 ? 1.12 : 0.9);
+    drawGraph();
   };
 
   const lineageTrail = useMemo(() => {
@@ -413,6 +557,9 @@ export default function ColumnLineagePage() {
       <Container maxWidth="xl">
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <IconButton component={Link} to="/" sx={{ color: "#f4f7f6" }} aria-label="Go to landing page">
+              <Home />
+            </IconButton>
             <IconButton component={Link} to="/lineage/tables" sx={{ color: "#f4f7f6" }}>
               <ArrowBack />
             </IconButton>
@@ -469,14 +616,50 @@ export default function ColumnLineagePage() {
               ))}
             </Select>
           </Box>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={() => setRefresh((p) => !p)}
-            sx={{ ml: "auto", borderColor: "rgba(255,255,255,0.25)", color: "#f4f7f6" }}
-          >
-            Refresh
-          </Button>
+          <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
+            <IconButton
+              sx={{ color: "#f4f7f6" }}
+              onClick={() => {
+                const rect = canvasRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                zoomAt(rect.width / 2, rect.height / 2, 1.12);
+                drawGraph();
+              }}
+            >
+              <ZoomIn />
+            </IconButton>
+            <IconButton
+              sx={{ color: "#f4f7f6" }}
+              onClick={() => {
+                const rect = canvasRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                zoomAt(rect.width / 2, rect.height / 2, 0.9);
+                drawGraph();
+              }}
+            >
+              <ZoomOut />
+            </IconButton>
+            <IconButton
+              sx={{ color: "#f4f7f6" }}
+              onClick={() => {
+                fitToContent();
+                drawGraph();
+              }}
+            >
+              <FitScreen />
+            </IconButton>
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={() => {
+                hasAutoFitRef.current = false;
+                setRefresh((p) => !p);
+              }}
+              sx={{ borderColor: "rgba(255,255,255,0.25)", color: "#f4f7f6" }}
+            >
+              Refresh
+            </Button>
+          </Stack>
         </Paper>
 
         <Box sx={{ display: "grid", gridTemplateColumns: selectedCol ? "1fr 340px" : "1fr", gap: 2 }}>
@@ -514,8 +697,14 @@ export default function ColumnLineagePage() {
                 ref={canvasRef}
                 style={{ display: "block", width: "100%", height: "100%" }}
                 onClick={handleCanvasClick}
+                onMouseDown={handleCanvasMouseDown}
                 onMouseMove={handleCanvasMouseMove}
-                onMouseLeave={() => setHoveredId(null)}
+                onMouseUp={handleCanvasMouseUp}
+                onMouseLeave={() => {
+                  handleCanvasMouseUp();
+                  setHoveredId(null);
+                }}
+                onWheel={handleCanvasWheel}
               />
               {isLoading && (
                 <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(0,0,0,0.25)" }}>

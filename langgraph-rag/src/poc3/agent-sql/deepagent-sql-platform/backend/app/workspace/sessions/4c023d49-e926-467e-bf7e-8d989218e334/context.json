@@ -1,0 +1,83 @@
+{
+  "source_tables": [],
+  "graph_context": {},
+  "business_spec": {
+    "CDP.analytics.customer_360": {
+      "type": "AGGREGATE",
+      "source": "FDP.banking.customers_clean",
+      "columns": {
+        "customer_id": "Direct mapping",
+        "total_accounts": "COUNT(DISTINCT account_id)",
+        "total_loans": "COUNT(DISTINCT loan_id)",
+        "total_spend": "SUM(amount)",
+        "spend_rank": "RANK() OVER (ORDER BY SUM(amount) DESC)"
+      }
+    },
+    "CDP.analytics.revenue_dashboard": {
+      "type": "KPI",
+      "source": "CDP.analytics.customer_360",
+      "columns": {
+        "total_bank_revenue": "SUM(total_spend)",
+        "total_transport_revenue": "SUM(total_revenue)",
+        "total_interest_income": "SUM(loan_amount * avg_interest/100)",
+        "top_customer": "MAX(customer_id) KEEP (DENSE_RANK FIRST ORDER BY total_spend DESC)"
+      }
+    },
+    "CDP.analytics.transaction_summary": {
+      "type": "AGGREGATE",
+      "source": "FDP.finance.transactions_enriched",
+      "columns": {
+        "account_id": "Direct mapping",
+        "total_transactions": "COUNT(transaction_id)",
+        "total_credit_amount": "SUM(CASE WHEN amount > 0 THEN amount END)",
+        "total_debit_amount": "SUM(CASE WHEN amount < 0 THEN amount END)",
+        "account_rank": "DENSE_RANK() OVER (ORDER BY COUNT(transaction_id) DESC)"
+      }
+    },
+    "FDP.banking.customers_clean": {
+      "type": "DIMENSION",
+      "source": "ODP.banking.customers_raw",
+      "columns": {
+        "customer_id": "Direct mapping from raw",
+        "customer_rank": "RANK() OVER (ORDER BY COUNT(account_id) DESC)",
+        "kyc_status": "CASE WHEN email IS NOT NULL THEN 'VERIFIED' ELSE 'PENDING' END",
+        "last_updated": "MAX(created_at)"
+      }
+    },
+    "FDP.finance.loans_enriched": {
+      "type": "FACT",
+      "source": "ODP.finance.loans_raw",
+      "columns": {
+        "loan_id": "Direct mapping",
+        "risk_category": "CASE WHEN interest_rate > 12 THEN 'HIGH_RISK' ELSE 'LOW_RISK' END",
+        "loan_rank": "RANK() OVER (ORDER BY loan_amount DESC)",
+        "avg_interest": "AVG(interest_rate) OVER (PARTITION BY customer_id)",
+        "loan_status": "CASE WHEN loan_amount > 500000 THEN 'PRIORITY' ELSE 'NORMAL' END"
+      }
+    },
+    "FDP.finance.transactions_enriched": {
+      "type": "FACT",
+      "source": "ODP.finance.transactions_raw",
+      "columns": {
+        "transaction_id": "Direct mapping",
+        "amount_category": "CASE WHEN amount > 10000 THEN 'HIGH' WHEN amount > 1000 THEN 'MEDIUM' ELSE 'LOW' END",
+        "txn_rank_per_account": "RANK() OVER (PARTITION BY account_id ORDER BY amount DESC)",
+        "cumulative_spend": "SUM(amount) OVER (PARTITION BY account_id ORDER BY transaction_date)"
+      }
+    }
+  },
+  "compiler_state": {
+    "last_generated_sql": "-- Create the CDP.analytics.customer_360 table\nCREATE TABLE CDP.analytics.customer_360 AS\nSELECT \n    customer_id,\n    COUNT(DISTINCT account_id) AS total_accounts,\n    COUNT(DISTINCT loan_id) AS total_loans,\n    SUM(amount) AS total_spend,\n    RANK() OVER (ORDER BY SUM(amount) DESC) AS spend_rank\nFROM \n    FDP.banking.customers_clean\nLEFT JOIN \n    FDP.finance.loans_enriched ON FDP.banking.customers_clean.customer_id = FDP.finance.loans_enriched.customer_id\nLEFT JOIN \n    FDP.finance.transactions_enriched ON FDP.banking.customers_clean.customer_id = FDP.finance.transactions_enriched.account_id\nGROUP BY \n    customer_id;\n\n-- Create the CDP.analytics.revenue_dashboard table\nCREATE TABLE CDP.analytics.revenue_dashboard AS\nSELECT \n    SUM(total_spend) AS total_bank_revenue,\n    SUM(total_revenue) AS total_transport_revenue,\n    SUM(loan_amount * avg_interest / 100) AS total_interest_income,\n    MAX(customer_id) KEEP (DENSE_RANK FIRST ORDER BY total_spend DESC) AS top_customer\nFROM \n    CDP.analytics.customer_360;\n\n-- Create the CDP.analytics.transaction_summary table\nCREATE TABLE CDP.analytics.transaction_summary AS\nSELECT \n    account_id,\n    COUNT(transaction_id) AS total_transactions,\n    SUM(CASE WHEN amount > 0 THEN amount END) AS total_credit_amount,\n    SUM(CASE WHEN amount < 0 THEN amount END) AS total_debit_amount,\n    DENSE_RANK() OVER (ORDER BY COUNT(transaction_id) DESC) AS account_rank\nFROM \n    FDP.finance.transactions_enriched\nGROUP BY \n    account_id\nLIMIT 100;",
+    "last_validation_errors": [],
+    "last_sql_file": "4c023d49-e926-467e-bf7e-8d989218e334_20260219_180800.sql",
+    "approved": true,
+    "sql_generate": "completed"
+  },
+  "orchestration_status": {
+    "last_generated_sql": "completed",
+    "last_validation_errors": "completed",
+    "last_sql_file": "completed",
+    "approved": "completed",
+    "sql_generate": "completed"
+  }
+}

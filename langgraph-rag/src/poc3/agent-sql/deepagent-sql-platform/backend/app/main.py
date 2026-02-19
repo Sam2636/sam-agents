@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
 from app.api import chat, csv_upload, approval, sql_management, lineage
+from app.ingest import schema, layer, transformations
 from app.memory.sqlite_store import init_db
 from app.config import SESSION_UPLOADS_DIR, AGENT_MEMORIES_DIR, AGENT_WORKSPACE_DIR
 
@@ -22,6 +23,9 @@ app.include_router(csv_upload.router, prefix="/csv", tags=["CSV"])
 app.include_router(approval.router, prefix="/approval", tags=["Approval"])
 app.include_router(sql_management.router, prefix="/sql", tags=["SQL"])
 app.include_router(lineage.router, prefix="/lineage", tags=["Lineage"])
+app.include_router(schema.router, prefix="/metadata", tags=["Metadata"])
+app.include_router(layer.router, prefix="/metadata", tags=["Metadata"])
+app.include_router(transformations.router, prefix="/metadata", tags=["Metadata"])
 
 
 @app.on_event("startup")

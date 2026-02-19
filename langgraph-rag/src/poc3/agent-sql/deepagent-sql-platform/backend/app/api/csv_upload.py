@@ -11,6 +11,7 @@ from app.config import SESSION_UPLOADS_DIR
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 import pandas as pd
+from pandas.errors import ParserError
 router = APIRouter()
 
 
@@ -20,6 +21,14 @@ def _session_dir(session_id: str) -> Path:
     session_path = root / session_id
     session_path.mkdir(parents=True, exist_ok=True)
     return session_path
+
+
+def _read_csv_with_fallback(file_path: Path):
+    try:
+        return pd.read_csv(file_path)
+    except ParserError as err:
+        logger.warning("CSV parse failed with C engine for %s: %s", file_path.name, err)
+        return pd.read_csv(file_path, engine="python", on_bad_lines="skip")
 
 @router.post("/upload")
 async def upload_csv_files(files: list[UploadFile] = File(...)):
@@ -61,12 +70,36 @@ async def upload_csv_files(files: list[UploadFile] = File(...)):
     # ----------------------------------------
 
     business_spec = {}
+    warnings = []
 
     session_path = Path(SESSION_UPLOADS_DIR) / session_id
     csv_files = list(session_path.glob("*.csv"))
+    required_columns = {
+        "layer",
+        "schema",
+        "table_name",
+        "table_type",
+        "source_tables",
+        "column_name",
+        "transformation_logic",
+    }
 
     for file_path in csv_files:
-        df = pd.read_csv(file_path)
+        try:
+            df = _read_csv_with_fallback(file_path)
+        except Exception as err:
+            msg = f"Skipped '{file_path.name}' due to parse error: {err}"
+            logger.warning(msg)
+            warnings.append(msg)
+            continue
+
+        df.columns = [str(col).strip().lower() for col in df.columns]
+        missing = sorted(required_columns - set(df.columns))
+        if missing:
+            msg = f"Skipped '{file_path.name}' missing required columns: {', '.join(missing)}"
+            logger.warning(msg)
+            warnings.append(msg)
+            continue
 
         grouped = df.groupby(["layer", "schema", "table_name"])
 
@@ -97,7 +130,8 @@ async def upload_csv_files(files: list[UploadFile] = File(...)):
         "session_id": session_id,
         "workspace": str(session_path),
         "files": saved_files,
-        "tables_detected": list(tables)
+        "tables_detected": list(tables),
+        "warnings": warnings,
     }
 
 
