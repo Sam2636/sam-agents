@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_BASE = ""; // Use relative path for Vite proxy
+const BACKEND_BASE = "http://localhost:8000";
 
 export const uploadZip = (file) => {
   const form = new FormData();
@@ -28,35 +29,61 @@ export const fetchMarkdown = (sessionId) => {
 };
 
 export const fetchGraphMetrics = () =>
-  axios.get("http://localhost:8000/metadata/graph/metrics");
+  axios.get(`${BACKEND_BASE}/metadata/graph/metrics`);
 
 export const fetchVisualGraph = () =>
-  fetch("http://localhost:8000/metadata/graph/visual")
+  fetch(`${BACKEND_BASE}/metadata/graph/visual`)
     .then(res => res.json());
 
+export const fetchLineageRoots = () =>
+  fetch(`${BACKEND_BASE}/lineage/graph/roots`).then((res) => {
+    if (!res.ok) throw new Error(`Lineage roots API error: ${res.status}`);
+    return res.json();
+  });
+
+export const fetchLineageFullGraph = () =>
+  fetch(`${BACKEND_BASE}/lineage/graph/full`).then((res) => {
+    if (!res.ok) throw new Error(`Lineage full graph API error: ${res.status}`);
+    return res.json();
+  });
+
+export const fetchLineageLayerExpand = (layerId, includeNeighbors = true) =>
+  fetch(
+    `${BACKEND_BASE}/lineage/graph/layer/${encodeURIComponent(layerId)}?include_neighbors=${includeNeighbors}`
+  ).then((res) => {
+    if (!res.ok) throw new Error(`Lineage layer expand API error: ${res.status}`);
+    return res.json();
+  });
+
+export const fetchLineageTableExpand = (tableId) =>
+  fetch(`${BACKEND_BASE}/lineage/graph/table/${encodeURIComponent(tableId)}`).then((res) => {
+    if (!res.ok) throw new Error(`Lineage table expand API error: ${res.status}`);
+    return res.json();
+  });
+
 export const fetchCanvasLineageGraph = () =>
-  fetch("http://localhost:8000/metadata/graph/canvas")
+  fetch(`${BACKEND_BASE}/metadata/graph/canvas`)
     .then((res) => {
       if (!res.ok) throw new Error(`Canvas API error: ${res.status}`);
       return res.json();
     });
 
 export const fetchTableCanvasLineage = () =>
-  fetch("http://localhost:8000/metadata/canvas")
+  fetch(`${BACKEND_BASE}/metadata/canvas`)
     .then((res) => {
       if (!res.ok) throw new Error(`Table canvas API error: ${res.status}`);
       return res.json();
     });
 
 export const fetchColumnCanvasLineage = () =>
-  fetch("http://localhost:8000/metadata/columns")
+  fetch(`${BACKEND_BASE}/metadata/columns`)
     .then((res) => {
       if (!res.ok) throw new Error(`Column canvas API error: ${res.status}`);
       return res.json();
     });
 
 export const dropAllMetadataGraph = () =>
-  fetch("http://localhost:8000/metadata/admin/drop-all", { method: "DELETE" })
+  fetch(`${BACKEND_BASE}/metadata/admin/drop-all`, { method: "DELETE" })
     .then((res) => {
       if (!res.ok) throw new Error(`Drop graph API error: ${res.status}`);
       return res.json();

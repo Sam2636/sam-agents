@@ -119,6 +119,8 @@ export default function SqlGenerationPage() {
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [generatedSql, setGeneratedSql] = useState("");
+  const [pipelineNodes, setPipelineNodes] = useState([]);
+  const [activeNode, setActiveNode] = useState("");
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -131,6 +133,16 @@ export default function SqlGenerationPage() {
     { role: "assistant", content: "Ready. Upload a CSV or ask a question about the existing model." }
   ]);
   const scrollRef = useRef(null);
+  const NODE_LABELS = {
+    detect_intent: "Detect Intent",
+    orchestrator: "Orchestrator",
+    pruning: "Pruning",
+    sql_generate: "SQL Generate",
+    sql_modify: "SQL Modify",
+    schema: "Schema",
+    business: "Business",
+    chat: "Chat"
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -242,28 +254,111 @@ export default function SqlGenerationPage() {
     setMessages((prev) => [...prev, { role: "user", content: userInput }]);
     setInput("");
     setLoading(true);
+    setPipelineNodes([]);
+    setActiveNode("");
 
     try {
-      const response = await fetch("http://localhost:8000/chat/", {
+      // Create placeholder assistant bubble for live streaming
+      let assistantIndex = -1;
+      setMessages((prev) => {
+        assistantIndex = prev.length;
+        return [...prev, { role: "assistant", content: "" }];
+      });
+
+      const response = await fetch("http://localhost:8000/chat/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId, message: userInput })
       });
 
-      if (!response.ok) throw new Error("Agent communication failed");
-      const data = await response.json();
-      const replyText = data.chat_reply || data.response || "I processed that request.";
-      const sqlMatch = replyText.match(/```sql\s*([\s\S]*?)```/i);
+      if (!response.ok || !response.body) throw new Error("Agent communication failed");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullReply = "";
+
+      const extractSqlProgress = (text) => {
+        const start = text.search(/```sql/i);
+        if (start === -1) return null;
+        const afterStart = text.slice(start).replace(/```sql\s*/i, "");
+        const end = afterStart.indexOf("```");
+        const sql = end >= 0 ? afterStart.slice(0, end) : afterStart;
+        const clean = sql.trim();
+        return clean || null;
+      };
+
+      const updateAssistant = (text) => {
+        setMessages((prev) =>
+          prev.map((m, i) => (i === assistantIndex ? { ...m, content: text } : m))
+        );
+      };
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+
+        for (const evt of events) {
+          const lines = evt.split("\n");
+          let eventName = "message";
+          let dataLine = "";
+          for (const line of lines) {
+            if (line.startsWith("event:")) eventName = line.replace("event:", "").trim();
+            if (line.startsWith("data:")) dataLine += line.replace("data:", "").trim();
+          }
+          if (!dataLine) continue;
+
+          let payload = {};
+          try {
+            payload = JSON.parse(dataLine);
+          } catch {
+            continue;
+          }
+
+          if (eventName === "chunk") {
+            fullReply += payload.content || "";
+            updateAssistant(fullReply);
+            const progressiveSql = extractSqlProgress(fullReply);
+            if (progressiveSql) setGeneratedSql(progressiveSql);
+          } else if (eventName === "progress") {
+            const node = String(payload.node || "").trim();
+            if (node) {
+              setActiveNode(node);
+              setPipelineNodes((prev) => (prev.includes(node) ? prev : [...prev, node]));
+            }
+          } else if (eventName === "error") {
+            const msg = payload.error || "System error: failed to communicate with agent.";
+            updateAssistant(msg);
+            setActiveNode("");
+          } else if (eventName === "done") {
+            const finalReply = payload.chat_reply || fullReply;
+            if (finalReply) {
+              fullReply = finalReply;
+              updateAssistant(fullReply);
+              const progressiveSql = extractSqlProgress(fullReply);
+              if (progressiveSql) setGeneratedSql(progressiveSql);
+            }
+            setActiveNode("");
+          }
+        }
+      }
+
+      const sqlMatch = fullReply.match(/```sql\s*([\s\S]*?)```/i);
       const extractedSql = sqlMatch ? sqlMatch[1].trim() : null;
       if (extractedSql) setGeneratedSql(extractedSql);
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: replyText.replace(/```sql[\s\S]*?```/i, "").trim() || "SQL generated."
-        }
-      ]);
+      // keep chat bubble clean while SQL appears in preview pane
+      setMessages((prev) =>
+        prev.map((m, i) =>
+          i === assistantIndex
+            ? { ...m, content: (fullReply.replace(/```sql[\s\S]*?```/i, "").trim() || "SQL generated.") }
+            : m
+        )
+      );
     } catch (err) {
       console.error("Fetch Error:", err);
       setMessages((prev) => [...prev, { role: "assistant", content: "System error: failed to communicate with agent." }]);
@@ -388,13 +483,28 @@ export default function SqlGenerationPage() {
                 )}
               </Paper>
 
-              <Paper elevation={12} sx={{ display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", minHeight: 420, maxHeight: 700 }}>
-                <Box sx={{ p: 2, borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>Chat for SQL</Typography>
-                  <Storage sx={{ color: "primary.main", fontSize: 18 }} />
-                </Box>
+	              <Paper elevation={12} sx={{ display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", minHeight: 420, maxHeight: 700 }}>
+	                <Box sx={{ p: 2, borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", gap: 1.5 }}>
+	                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 16 }}>Chat for SQL</Typography>
+	                  <Storage sx={{ color: "primary.main", fontSize: 18, mt: 0.2 }} />
+	                </Box>
+	                <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", flexWrap: "wrap", gap: 0.8 }}>
+	                  {pipelineNodes.length === 0 ? (
+	                    <Chip size="small" label={loading ? "Waiting for pipeline..." : "No active pipeline"} variant="outlined" />
+	                  ) : (
+	                    pipelineNodes.map((node) => (
+	                      <Chip
+	                        key={node}
+	                        size="small"
+	                        label={NODE_LABELS[node] || node}
+	                        color={activeNode === node ? "primary" : "success"}
+	                        variant={activeNode === node ? "filled" : "outlined"}
+	                      />
+	                    ))
+	                  )}
+	                </Box>
 
-                <Box ref={scrollRef} sx={{ flex: 1, overflowY: "auto", p: 2.2, display: "flex", flexDirection: "column", gap: 2.2 }}>
+	                <Box ref={scrollRef} sx={{ flex: 1, overflowY: "auto", p: 2.2, display: "flex", flexDirection: "column", gap: 2.2 }}>
                   {messages.map((msg, idx) => (
                     <Fade in={true} key={idx}>
                       <Box sx={{ alignSelf: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: "94%" }}>

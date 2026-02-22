@@ -1,11 +1,11 @@
+import os
 import shutil
 from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from app.api.chat import _tables_from_session_csv, fetch_table_schema
-from app.memory.session_context import save_context
-import asyncio
+from app.api.chat import _normalize_metadata_df, _tables_from_session_csv, fetch_table_schemas_batch
+from app.memory.session_context import save_context, load_context
 import logging
 from app.config import SESSION_UPLOADS_DIR
 logging.basicConfig(level=logging.INFO)
@@ -32,109 +32,111 @@ def _read_csv_with_fallback(file_path: Path):
 
 @router.post("/upload")
 async def upload_csv_files(files: list[UploadFile] = File(...)):
-
     session_id = str(uuid4())
     session_path = _session_dir(session_id)
-
     saved_files = []
 
     for file in files:
         if not file.filename.endswith(".csv"):
             raise HTTPException(status_code=400, detail="Only CSV files allowed.")
-
         destination = session_path / file.filename
-
         with destination.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-
         saved_files.append(file.filename)
 
-    # 🔥 BUILD GRAPH CONTEXT
+    # 1. Detect source and target tables from uploaded CSV(s)
     tables = _tables_from_session_csv(session_id)
 
+    # 2. Batch-fetch schemas for all detected tables
+    raw_schemas = await fetch_table_schemas_batch(list(tables))
     graph_context = {}
-
-    for table in tables:
-        try:
-            schema_data = await fetch_table_schema(table)
-            logger.info(f"Fetching schema for table: {table}")
-            logger.info(f"Schema returned: {schema_data}")
-
-            if schema_data:
-                graph_context[table] = schema_data
-        except Exception:
-            continue
+    for table_name, schema_data in raw_schemas.items():
+        if schema_data:
+            # Normalize to match chat.py structure
+            cols = []
+            for c in schema_data.get("columns", []):
+                cols.append({
+                    "name": c.get("name") or c.get("column_name"),
+                    "datatype": c.get("type") or c.get("datatype")
+                })
+            graph_context[table_name] = {
+                "columns": cols,
+                "relationships": schema_data.get("relationships", [])
+            }
     
-    # ----------------------------------------
-    # BUILD BUSINESS SPEC FROM CSV
-    # ----------------------------------------
-
+    # 3. Build multi-source business spec from uploaded CSV(s)
     business_spec = {}
     warnings = []
-
-    session_path = Path(SESSION_UPLOADS_DIR) / session_id
-    csv_files = list(session_path.glob("*.csv"))
-    required_columns = {
+    required_business_cols = {
         "layer",
         "schema",
         "table_name",
-        "table_type",
-        "source_tables",
         "column_name",
         "transformation_logic",
     }
 
-    for file_path in csv_files:
+    for file_path in session_path.glob("*.csv"):
         try:
             df = _read_csv_with_fallback(file_path)
-        except Exception as err:
-            msg = f"Skipped '{file_path.name}' due to parse error: {err}"
-            logger.warning(msg)
-            warnings.append(msg)
+        except Exception as exc:
+            warnings.append(f"{file_path.name}: unable to parse CSV ({exc})")
             continue
 
-        df.columns = [str(col).strip().lower() for col in df.columns]
-        missing = sorted(required_columns - set(df.columns))
+        df = _normalize_metadata_df(df)
+
+        missing = sorted(required_business_cols - set(df.columns))
         if missing:
-            msg = f"Skipped '{file_path.name}' missing required columns: {', '.join(missing)}"
-            logger.warning(msg)
-            warnings.append(msg)
+            warnings.append(
+                f"{file_path.name}: missing columns {', '.join(missing)}; skipped for business_spec"
+            )
             continue
 
-        grouped = df.groupby(["layer", "schema", "table_name"])
-
+        # Group by target table identity
+        grouped = df.groupby(["layer", "schema", "table_name"], dropna=True)
         for (layer, schema, table), group_df in grouped:
-            full_name = f"{layer}.{schema}.{table}"
+            full_name = f"{str(layer).strip()}.{str(schema).strip()}.{str(table).strip()}"
+
+            # Extract all unique sources from all rows for this target table
+            all_sources = set()
+            if "source_tables" in group_df.columns:
+                for val in group_df["source_tables"].dropna():
+                    all_sources.update([s.strip() for s in str(val).split(",") if s.strip()])
 
             business_spec[full_name] = {
-                "type": group_df["table_type"].iloc[0],
-                "source": group_df["source_tables"].iloc[0],
-                "columns": {}
+                "sources": list(all_sources),
+                "type": group_df["table_type"].iloc[0] if "table_type" in group_df.columns else "TABLE",
+                "columns": {
+                    str(row["column_name"]).strip(): str(row["transformation_logic"]).strip()
+                    for _, row in group_df.iterrows()
+                    if pd.notna(row["column_name"])
+                },
             }
 
-            for _, row in group_df.iterrows():
-                business_spec[full_name]["columns"][
-                    row["column_name"]
-                ] = row["transformation_logic"]
+    # Merge with existing context so we don't wipe compiler/orchestration state
+    existing_context = load_context(session_id) or {}
+    existing_context["source_tables"] = sorted(list(tables))
+    existing_context["graph_context"] = graph_context
+    existing_context["business_spec"] = business_spec
+    save_context(session_id, existing_context)
 
-
-    save_context(session_id, {
-    "source_tables": list(tables),
-    "graph_context": graph_context,
-    "business_spec": business_spec
-    })
-
+    logger.info(
+        "Upload context saved for %s | tables=%d graph=%d spec=%d warnings=%d",
+        session_id,
+        len(tables),
+        len(graph_context),
+        len(business_spec),
+        len(warnings),
+    )
 
     return {
         "status": "uploaded",
         "session_id": session_id,
-        "workspace": str(session_path),
-        "files": saved_files,
         "tables_detected": list(tables),
+        "context_file": os.path.join(str(session_path), "context.json"),
+        "graph_context_count": len(graph_context),
+        "business_spec_count": len(business_spec),
         "warnings": warnings,
     }
-
-
 
 @router.get("/session/{session_id}")
 def get_session_files(session_id: str):

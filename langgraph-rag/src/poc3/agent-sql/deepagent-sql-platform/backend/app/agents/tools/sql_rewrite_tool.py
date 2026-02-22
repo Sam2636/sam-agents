@@ -1,17 +1,21 @@
 import re
 
-FORBIDDEN = ["DROP", "DELETE", "UPDATE", "TRUNCATE", "ALTER"]
-
-def rewrite_sql(query: str) -> str:
+def rewrite_sql(query: str, allow_ddl: bool = False, allow_dml: bool = False):
     query = (query or "").strip()
     upper = query.upper()
 
-    for keyword in FORBIDDEN:
-        if keyword in upper:
-            raise Exception(f"Forbidden SQL operation detected: {keyword}")
+    FORBIDDEN_DDL = ["DROP", "ALTER"]
+    FORBIDDEN_DML = ["DELETE", "UPDATE", "TRUNCATE"]
+
+    for keyword in FORBIDDEN_DDL:
+        if not allow_ddl and keyword in upper:
+            raise Exception(f"Forbidden DDL operation detected: {keyword}")
+
+    for keyword in FORBIDDEN_DML:
+        if not allow_dml and keyword in upper:
+            raise Exception(f"Forbidden DML operation detected: {keyword}")
 
     if "LIMIT" not in upper:
-        # Add LIMIT safely before a trailing semicolon if present.
         if query.endswith(";"):
             query = query[:-1].rstrip() + "\nLIMIT 100;"
         else:

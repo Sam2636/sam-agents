@@ -1,4 +1,0 @@
-layer,schema,table_name,table_type,table_version,column_name,datatype,business_description,transformation_logic,source_tables,source_columns
-CDP,analytics,orders_summary,AGGREGATE,1,customer_id,INT,Unique identifier of the customer,Direct mapping from source,ODP.sales.orders,customer_id
-CDP,analytics,orders_summary,AGGREGATE,1,total_orders,INT,Total count of orders,COUNT(order_id),ODP.sales.orders,order_id
-CDP,analytics,orders_summary,AGGREGATE,1,total_amount,DECIMAL,Total sum of order values,SUM(order_amount),ODP.sales.orders,order_amount

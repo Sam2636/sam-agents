@@ -726,7 +726,11 @@ export default function ColumnLineagePage() {
                 borderRadius: 2,
                 bgcolor: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.12)",
-                p: 2
+                p: 2,
+                color: "#eaf2ef",
+                "& .MuiTypography-root": {
+                  color: "#eaf2ef"
+                }
               }}
             >
               <Typography sx={{ fontWeight: 700, fontFamily: "monospace" }}>{selectedCol.column}</Typography>
@@ -759,10 +763,21 @@ export default function ColumnLineagePage() {
                       size="small"
                       label={col.column}
                       color={col.id === selectedCol.id ? "primary" : "default"}
-                      sx={{ fontFamily: "monospace" }}
+                      sx={{
+                        fontFamily: "monospace",
+                        ...(col.id !== selectedCol.id
+                          ? {
+                              color: "#eaf2ef",
+                              bgcolor: "rgba(255,255,255,0.14)",
+                              borderColor: "rgba(255,255,255,0.24)",
+                            }
+                          : {})
+                      }}
                     />
                     <Typography sx={{ fontSize: 12, opacity: 0.72 }}>({col.table})</Typography>
-                    {i < lineageTrail.length - 1 && <ArrowForward sx={{ fontSize: 14, opacity: 0.5, ml: "auto" }} />}
+                    {i < lineageTrail.length - 1 && (
+                      <ArrowForward sx={{ fontSize: 14, opacity: 0.7, ml: "auto", color: "#b8c8c2" }} />
+                    )}
                   </Box>
                 ))}
               </Stack>

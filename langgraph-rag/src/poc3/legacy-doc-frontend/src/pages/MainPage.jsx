@@ -44,6 +44,7 @@ export default function MainPage() {
   const [dropLoading, setDropLoading] = useState(false);
   const [lineageNodes, setLineageNodes] = useState([]);
   const [selectedLineageNode, setSelectedLineageNode] = useState(null);
+  const [graphViewMode, setGraphViewMode] = useState("lazy");
   const [metrics, setMetrics] = useState({
     layers: [],
     summary: { layers: 0, tables: 0, versions: 0, columns: 0 }
@@ -99,13 +100,7 @@ export default function MainPage() {
 
   const handleGraphLoaded = useCallback((graphData) => {
     const rawNodes = Array.isArray(graphData?.nodes) ? graphData.nodes : [];
-    const tableLikeNodes = rawNodes.filter((node) => {
-      const group = String(node.group || "").toLowerCase();
-      return group === "table";
-    });
-
-    const source = tableLikeNodes.length ? tableLikeNodes : rawNodes;
-    const options = source
+    const options = rawNodes
       .map((node, idx) => ({
         id: String(node.id ?? `node_${idx}`),
         label: String(node.label ?? node.name ?? node.id ?? `Node ${idx + 1}`),
@@ -113,11 +108,7 @@ export default function MainPage() {
       .sort((a, b) => a.label.localeCompare(b.label));
 
     setLineageNodes(options);
-    if (selectedLineageNode) {
-      const stillExists = options.find((opt) => opt.id === selectedLineageNode.id);
-      if (!stillExists) setSelectedLineageNode(null);
-    }
-  }, [selectedLineageNode]);
+  }, []);
 
   const handleGraphNodeSelect = useCallback((nodeId) => {
     if (!nodeId) {
@@ -375,8 +366,29 @@ export default function MainPage() {
                       fontSize: 12
                     }}
                   >
-                    Live View
+                    {graphViewMode === "full" ? "Full View" : "Lazy View"}
                   </Box>
+                  <Button
+                    variant={graphViewMode === "lazy" ? "contained" : "outlined"}
+                    size="small"
+                    onClick={() => {
+                      setGraphViewMode("lazy");
+                      setRefreshGraph(p => !p);
+                    }}
+                  >
+                    Progressive
+                  </Button>
+                  <Button
+                    variant={graphViewMode === "full" ? "contained" : "outlined"}
+                    size="small"
+                    color="secondary"
+                    onClick={() => {
+                      setGraphViewMode("full");
+                      setRefreshGraph(p => !p);
+                    }}
+                  >
+                    Full View
+                  </Button>
                   <Button
                     variant="contained"
                     size="small"
@@ -393,6 +405,7 @@ export default function MainPage() {
               <Box sx={{ flex: 1, minHeight: 0, height: "100%" }}>
                 <LineageGraph
                   refresh={refreshGraph}
+                  viewMode={graphViewMode}
                   focusNodeId={selectedLineageNode?.id || null}
                   onGraphLoaded={handleGraphLoaded}
                   onNodeSelect={handleGraphNodeSelect}
