@@ -38,6 +38,8 @@ nav:
   - Home: index.md
   - Usage: usage.md
   - MultiGent: multigent.md
+  - current-Affairs:
+      - Current-Affairs-27: current-affair-27.md
   - Studying:
       - DSA:
           - Python Basics: Python-basic.md
